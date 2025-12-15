@@ -5,14 +5,280 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="assets/earthhero-green.jpg">
     <title>EarthHero</title>
-    <!-- React CDN -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="js/react-components.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
-    <h4>Hiiii</h4>
-
+    <!-- Site header -->
+    <div id="header-container"></div>
     
+    
+    <!-- Main Content -->
+    <main class="app-container">
+        <!-- Search Bar -->
+        <div id="search-bar"></div>
+
+        <!-- Landing -->
+        <div class="landing-text-container">
+            <h3>Shop Smart, <br />Live <span>Green.</span></h3>
+            <p><span class="hero-text">137, 456 kg of plastic <br />is saved by our users. </span><br /><br /> 
+                101, 278 eco orders delivered.</p>
+        </div>
+        <button class="button">Shop Eco Now</button>
+        <div class="center-container"><p>Discover more eco-friendly products that care for you and the planet.</p></div>
+        
+        <!-- AD -->
+        <div class="ad-container"> 
+            <div class="ad-row">
+                <img class="ad1" src="../assets/banner1.png" alt="ad">
+                <div id="ad-col" class="ad-col">
+                    <img class="ad2" src="../assets/membership_ad.png" alt="ad">
+                    <img class="ad3" src="../assets/collab_ad.png" alt="ad">
+                </div>
+            </div>
+        </div>
+
+        <!-- Category -->
+        <div class="category-container">
+            <h1 class="title-text">Category</h1>
+            <div class="category-list">
+                <div class="category-card">
+                    <i class="fa-solid fa-kitchen-set"></i>
+                    <p class="category-name">Home & Kitchen</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-shirt"></i>
+                    <p class="category-name">Cloth & Accessories</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-paintbrush"></i>
+                    <p class="category-name">Beauty & Personal Care</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-prescription-bottle-medical"></i>
+                    <p class="category-name">Health & Wellness</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-utensils"></i>
+                    <p class="category-name">Food & Beverages</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-computer"></i>
+                    <p class="category-name">Electronics & Gadgets</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-seedling"></i>
+                    <p class="category-name">Garden & Outdoor</p>
+                </div>
+                <div class="category-card">
+                    <i class="fa-solid fa-bone"></i>
+                    <p class="category-name">Kids & Pets Essentials</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Arrivals -->
+        <div class="new-arrivals-container">
+            <div class="title-container2">
+                <h1 class="title-text">New Arrivals</h1>
+                <button class="text-button">See more ></button>
+            </div>
+            <div id="new-arrivals" class="product-container">
+            </div>    
+        </div>
+
+        <!-- Top Sellers -->
+        <div class="top-sell-container">
+            <div class="title-container2">
+                <h1 class="title-text">Top Sellers</h1>
+                <button class="text-button">See more ></button>
+            </div>
+            <div id="top-sellers" class="product-container">
+            </div>    
+        </div>
+
+        <!-- About -->
+        <div class="about-container">
+            <div class="title-container">
+                <h1 class="title-text">About EarthHero</h1>
+                <img class="logo-img" src="../assets/earthhero-green.jpg" alt="logo">
+            </div>
+            <div class="about-row">
+                <h2>"Building a world where every purchase makes a difference."</h2>
+                <iframe class="gif1" title="gif1" src="https://lottie.host/embed/3022c2a4-d435-4529-8646-eea2b59d983a/Y9U1DYe2Jm.lottie"></iframe>
+                <iframe class="gif2" title="gif2" src="https://lottie.host/embed/f2b302a2-abc2-4a15-9ef6-e592d326bda9/3vdpsG1Ly4.lottie"></iframe>
+            </div>
+            <p>We believe shopping shouldn't harm the planet. 
+                    Our marketplace connects conscious buyers with sustainable brands 
+                    that care about the Earth — from plastic-free packaging to carbon-neutral delivery.</p>
+        </div>
+
+        <!-- Features -->
+        <div class="features-container">
+            <div class="feature-card">
+                <h4>Shop with Purpose</h4>
+                <p>Every purchase supports local artisans and eco-conscious brands.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Sustainable Choices</h4>
+                <p>We curate products made from recycled, organic, and ethical materials.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Save More, Waste Less</h4>
+                <p>Exclusive discounts for green shoppers — good for your wallet and the planet.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Join a Greener Community</h4>
+                <p>Connect with others who care about sustainability,
+                and make an impact together.</p>
+            </div>
+        </div>
+        <div class="more-about-container">
+            <button class="text-button">> More About Us</button>
+        </div>
+
+        <!-- Collaboration -->
+        <div class="collab-container">
+            <h1 class="title-text">Being Part of Something Bigger</h1>
+            <p class="sub-text">Discover, promote, and support sustainable living together. Whether you’re a conscious shopper, a creator, or a brand — there’s a place for you in our community.</p>
+        </div>
+
+        <!-- Membership -->
+        <div class="membership-container">
+            <div class="member-desc">
+                <h1>Become a<br />Pro Member</h1>
+                <p class="sub-text">Enjoy exclusive discount<br />and free monthly eco box!</p>
+            </div>
+            <div class="member-card">
+                <div class="left-card">
+                    <p>EarthHero PRO<br />Membership</p>
+                    <h2>RM39.99/<br />month</h2>
+                    <button class="button">Subscribe</button>
+                </div>
+                <div class="right-card">
+                    <div class="number-list">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>Free monthly eco-kit.</p>
+                    </div>
+                    <div class="number-list">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>First-time subscription will get free merchandise.</p>
+                    </div>
+                    <div class="number-list">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>Auto-monthly refill for subscribed product.</p>
+                    </div>
+                    <div class="number-list">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>5% discount for order more than RM30.</p>
+                    </div>
+                    <div class="number-list">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>Birthday voucher for any shops.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="more-about-container">
+            <button class="text-button">> More pricing plans</button>
+        </div>
+
+        <!-- Ambassador -->
+        <div class="ambassador-container">
+            <div class="ambassador-card">
+                <h3>How to Join?</h3>
+                <p>1. Apply through our Ambassador Signup Form.
+                    <br />2. Complete a short orientation about our eco-vision.
+                    <br />3. Start sharing and earning points as you promote sustainability.</p>
+                <button class="button">Apply as Ambassador</button>
+            </div>
+
+            <div class="ambassador-desc">
+                <h1>Become Our Ambassador</h1>
+                <p class="sub-text">Promote our platform’s sustainable mission through 
+                   <br />social media, school, or community events, and 
+                   <br />represent our marketplace in campaigns.</p>
+                <div class="number-list">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>Official certificate.</p>
+                </div>
+                <div class="number-list">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>Exclusive ambassador-only coupons.</p>
+                </div>
+                <div class="number-list">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>Feature spotlight on our socials.</p>
+                </div>
+                <div class="number-list">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>Community recognition.</p>
+                </div>    
+            </div>
+        </div>
+        
+        <div class="collab-container">
+            <h1>Partner With Us</h1>
+            <p class="sub-text">Discover, promote, and support sustainable living together. Whether you’re a conscious shopper, a creator, or a brand — there’s a place for you in our community.</p>
+            <button class="button">Collaborate</button>
+        </div>
+    </main>
+
+    <!-- Contact -->
+    <div class="contact-container">
+        <div class="left-contact">
+            <h1>Get in Touch</h1>
+            <p><br />Email: support@earthhero.com
+                <br />Phone: +60 12-345 6789
+                <br />Location: Sarawak, Malaysia
+                <br />Hours: Mon - Fri, 9 AM - 5 PM</p>
+        </div>
+        <div class="right-contact">
+            <p>Have questions, feedback, or ideas for collaboration?  
+                <br />Let's grow a greener future together.</p>
+
+            <form>
+                <label>Name</label>
+                <input type="text" placeholder="Enter name">
+                <label>Email</label>
+                <input type="text" placeholder="Enter email">
+                <label>Subject</label>
+                <input type="text" placeholder="Enter subject">
+                <label>Messages</label>
+                <input class="messages" type="text" placeholder="Leave us your messages...">
+            </form>
+            <button class="button">Send</button>
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="newsletter-container">
+        <div class="left-news">
+            <input type="text" placeholder="Enter email">
+            <button class="button">Subscribe</button>
+        </div>
+        <div class="right-news">
+            <h1>Stay in the loop</h1>
+            <p>Sign up our newsletter and get<br />the latest on sustainable products, eco-lifestyle tips,<br />and exclusive member offers — straight to your inbox.</p>
+        </div>
+    </div>
+
+    <!-- Site footer -->
+    <div id="footer-container"></div>
+
+<!-- React CDN -->    
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<!-- Global components -->
+<script src="./components/siteHeader.js?v=1.0"></script>
+<script src="./components/searchBar.js?v=1.0"></script>
+<script src="./components/siteFooter.js?v=1.0"></script>
+<script src="./components/productCard.js?v=1.0"></script>
+<!-- Page JS -->
+<script src="./page/home.js?v=1.0"></script>   
 </body>
 </html>

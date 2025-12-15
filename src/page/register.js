@@ -1,4 +1,3 @@
-
 const e = React.createElement;
 
 // ======= Function to sign up =======
@@ -100,6 +99,7 @@ function RegisterForm({switchToLogin}) {
                 fetch("http://localhost/earth-hero/src/backend/signUp.php?action=register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
+                    credentials: "include", // REQUIRED for session cookie
                     body: JSON.stringify({ name, email, password, role }) 
                 })
                 .then(res => res.json())
@@ -242,7 +242,7 @@ function RegisterForm({switchToLogin}) {
 
         // Register button
         e('div', { className: 'register-btn-container' },
-            e('button', { className:'button', type: 'submit' }, 'Sign Up')),
+            e('button', { className:'long-button', type: 'submit' }, 'Sign Up')),
 
         // Change to login
         e('div', { className: 'center-container' },
@@ -283,6 +283,9 @@ function LoginForm({switchToSignUp}) {
 
     // Send login credentials to server
     function handleSubmit(e) {
+        console.log(email);
+        console.log(role);
+        console.log(password);
         e.preventDefault();
         // Run validations
         const newErrors = {
@@ -297,7 +300,8 @@ function LoginForm({switchToSignUp}) {
         console.log("Logging");
         fetch("http://localhost/earth-hero/src/backend/login.php?action=login", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json"},
+            credentials: "include" ,
             body: JSON.stringify({ email, password, role })
         })
         .then(res => res.json())
@@ -308,7 +312,9 @@ function LoginForm({switchToSignUp}) {
                 setEmail(''); setPassword(''); setRole('');
                 // Save token in memory
                 window.csrfToken = data.csrf_token;  // temporary storage
+                window.location.href = "http://localhost/earth-hero/src/index.html"; 
             } else {
+                console.log(data);
                 setError(data.message);
             }
         });
@@ -361,7 +367,7 @@ function LoginForm({switchToSignUp}) {
 
         // Login button
         e('div', { className: 'register-btn-container' },
-            e('button', { className:'button', type: 'submit' }, 'Login')
+            e('button', { className:'long-button', type: 'submit' }, 'Login')
         ),
 
         // Switch to signup

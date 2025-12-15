@@ -17,9 +17,9 @@ session_set_cookie_params([
     'lifetime' => 0,          // expires when browser closes
     'path' => '/',
     'domain' => 'localhost',  // change to your real domain in production
-    'secure' => true,         // only send cookie via HTTPS
+    'secure' => false,         // only send cookie via HTTPS(false
     'httponly' => true,       // JavaScript cannot read cookie
-    'samesite' => 'Strict'    // mitigate CSRF
+    'samesite' => 'Lax'    // mitigate CSRF(strict)
 ]);
 
 session_start();
@@ -35,7 +35,4 @@ $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die(json_encode(["error" => "Database connection failed: " . $conn->connect_error]));
 }
-
-
 ?>
-

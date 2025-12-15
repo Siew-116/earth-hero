@@ -1,7 +1,6 @@
 <?php
 // login.php
 include 'config.php';
-
 $action = $_GET['action'] ?? '';
 
 // ACTION: LOGIN ACCOUNT (POST)
@@ -9,8 +8,14 @@ if ($action === "login") {
 
     $data = json_decode(file_get_contents("php://input"), true);
     $email = trim($data['email'] ?? '');
-    $password = $data['password'] ?? '';
+    $password = trim($data['password'] ?? '');
     $role = trim($data['role'] ?? ''); 
+
+    if (!$email || !$password) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Missing input.']);
+    exit;
+}
 
     // Validation
     // Validate email
@@ -32,11 +37,15 @@ if ($action === "login") {
         exit;
     }
 
+    $hashedPassword = '';
+    $name = '';
+    $dbRole = '';
+    
     // Prepared statement
-    $stmt = $conn->prepare("SELECT password, name, role FROM users WHERE email=? AND role=?");
+    $stmt = $conn->prepare("SELECT userID, password, name, role FROM users WHERE email=? AND role=?");
     $stmt->bind_param("ss", $email, $role);
     $stmt->execute();
-    $stmt->bind_result($hashedPassword, $name, $dbRole);
+    $stmt->bind_result($userID, $hashedPassword, $name, $dbRole);
     
     // If user not found
     if (!$stmt->fetch()) {
@@ -52,8 +61,11 @@ if ($action === "login") {
         echo json_encode(["success" => false, "message" => "Invalid email or password"]);
         exit;
     }
+    // Prevent session fixation
+    session_regenerate_id(true);
 
     // Store user info in session
+    $_SESSION['userID'] = $userID;
     $_SESSION['name'] = $name;
     $_SESSION['email'] = $email;
     $_SESSION['role'] = $dbRole;
@@ -68,8 +80,7 @@ if ($action === "login") {
         "success" => true,
         "name" => $name,
         "email" => $email,
-        "role" => $dbRole,
-        "csrf_token" => $_SESSION['csrf_token']
+        "role" => $dbRole
     ]);
     exit;
 }
