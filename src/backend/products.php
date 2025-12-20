@@ -5,8 +5,101 @@ include 'config.php';
 $action = $_GET['action'] ?? '';
 $products = [];
 
-// New Arrivals
-if ($action === "new-arrivals") {
+// Filter products (GET)
+if ($action === "getProducts") {
+    
+    $sql = "
+        SELECT
+            p.productID,
+            p.productName,
+            c.name AS category,
+            v.img,
+            v.salePrice,
+            v.rfrPrice,
+            SUM(v2.sold) AS totalSold,
+            s.location,
+            GROUP_CONCAT(DISTINCT t.name) AS tags
+        FROM products p
+        JOIN variations v ON p.cover_varID = v.varID
+        JOIN variations v2 ON v2.productID = p.productID
+        JOIN category c ON p.categoryID = c.categoryID
+        JOIN sellers s ON p.sellerID = s.sellerID
+        LEFT JOIN producttag pt ON p.productID = pt.productID
+        LEFT JOIN tags t ON pt.tagID = t.tagID
+        WHERE 1=1
+    ";
+
+    $params = [];
+
+    // --- Filters ---
+    if (!empty($_GET['category']) && $_GET['category'] !== 'All') {
+        $sql .= " AND c.name = ?";
+        $params[] = $_GET['category'];
+    }
+
+    if (!empty($_GET['search'])) {
+        $sql .= " AND p.productName LIKE ?";
+        $params[] = "%" . $_GET['search'] . "%";
+    }
+
+    if (!empty($_GET['location'])) {
+        $sql .= " AND s.location = ?";
+        $params[] = $_GET['location'];
+    }
+
+    if (!empty($_GET['tagName'])) {
+        $sql .= " AND t.name = ?";
+        $params[] = $_GET['tagName'];
+    }
+
+    if (!empty($_GET['lowestPrice'])) {
+        $sql .= " AND v.salePrice >= ?";
+        $params[] = $_GET['lowestPrice'];
+    }
+
+    if (!empty($_GET['highestPrice'])) {
+        $sql .= " AND v.salePrice <= ?";
+        $params[] = $_GET['highestPrice'];
+    }
+
+    // --- Group & order ---
+    $sql .= "
+        GROUP BY
+            p.productID
+    ";
+
+    $stmt = $conn->prepare($sql);
+
+    if ($params) {
+        $types = str_repeat('s', count($params));
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $products = [];
+    while ($row = $result->fetch_assoc()) {
+        $products[] = [
+            'id' => (int)$row['productID'],
+            'name' => $row['productName'],
+            'category' => $row['category'],
+            'image' => $row['img'],
+            'price' => (float)$row['salePrice'],
+            'originalPrice' => (float)$row['rfrPrice'],
+            'sales' => (int)$row['totalSold'],
+            'location' => $row['location'],
+            'tags' => $row['tags'] ? explode(',', $row['tags']) : []
+        ];
+    }
+
+    echo json_encode($products);
+    exit();
+}
+
+
+// New Arrivals (GET)
+else if ($action === "new-arrivals") {
 
     $sql = "
        SELECT
@@ -58,7 +151,7 @@ if ($action === "new-arrivals") {
     }
 }
 
-// Top Sellers
+// Top Sellers (GET)
 else if ($action === "top-sellers") {
 
     $sql = "
@@ -131,9 +224,9 @@ else if ($action === "top-sellers") {
 
 // View products details 
 
-// Filter products
 
-// 
+
+// Get hashtags (GET)
 
 header('Content-Type: application/json');
 echo json_encode($products);

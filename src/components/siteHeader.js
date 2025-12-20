@@ -7,14 +7,28 @@ function PageHeader() {
 
     // Check session on page load
     React.useEffect(() => {
-        fetch('http://localhost/earth-hero/src/backend/current_user.php', {
+        fetch('http://localhost/earth-hero/src/backend/users.php?action=getUser', {
             credentials: 'include'
         })
         .then(res => res.json())
         .then(data => {
-            setUser(data);
+            if (data.loggedIn) {
+                // Store full user info and default shipping
+                setUser({
+                    loggedIn: true,
+                    ...data.user,
+                    defaultAddress: data.default_address || {}
+                });
+            } else {
+                setUser({ loggedIn: false });
+            }
+        })
+        .catch(err => {
+            console.error("Failed to fetch user:", err);
+            setUser({ loggedIn: false });
         });
     }, []);
+
 
     function checkLogin() {
         if (user.loggedIn) {
@@ -46,7 +60,7 @@ function PageHeader() {
 
 
     return e('header', { className: 'site-header' },
-        e('div', { className: 'title-container'},
+        e('a', { href: "./index.html", className: 'title-container'},
         // Logo
         e('img', { className: 'logo-img', src: '../assets/earthhero-green.jpg', alt: 'logo'}),
         // Site title
@@ -56,8 +70,8 @@ function PageHeader() {
         // Navigation
         e('div', { className: 'nav-container'},
         e('nav', null,
-            e('a', { className: 'nav-btn', href: '#' }, 'Home'),
-            e('a', { className: 'nav-btn', href: '#' }, 'Shop Now'),
+            e('a', { className: 'nav-btn', href: "./index.html" }, 'Home'),
+            e('a', { className: 'nav-btn', href: "./shop.html", }, 'Shop Now'),
             e('a', { className: 'nav-btn', href: '#'}, 'About'),
             e('a', { className: 'nav-btn', href: '#' }, 'Pricing'),
             e('a', { className: 'nav-btn', href: '#' }, 'Contact'),
@@ -82,15 +96,15 @@ function PageHeader() {
             className: 'sidebar',
             onMouseLeave: () => setOpenMenu(false)
         },
-            e('a', { className: 'side-link', href: '#' }, 'Home'),
-            e('a', { className: 'side-link', href: '#' }, 'Shop Now'),
+            e('a', { className: 'side-link', href: "./index.html" }, 'Home'),
+            e('a', { className: 'side-link', href: "./shop.html", }, 'Shop Now'),
             e('a', { className: 'side-link', href: '#' }, 'About'),
             e('a', { className: 'side-link', href: '#' }, 'Pricing'),
             e('a', { className: 'side-link', href: '#' }, 'Contact'),
             e('a', { className: 'side-link', href: '#' }, 'Join Us'),
             e('a', { className: 'side-link', href: '#' }, 'My Purchase'),
             e('a', { className: 'side-link', href: '#' }, 'Cart'),
-            e('a', { className: 'side-link', href: '#' }, 'My Profile')
+            e('button', { className: 'side-link', onClick: ()=> setOpenProfile(true) }, 'User')
         ),
         // PROFILE MENU SIBEBAR
         user.loggedIn && openProfile && e('div', {
@@ -98,17 +112,17 @@ function PageHeader() {
             onMouseLeave: () => setOpenProfile(false)
         },
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("my-profile") }, 'My Profile'),
+                onClick: ()=> goToSection("my-profile") }, 'My Profile'),
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("subcription") }, 'Subscription'),
+                onClick: ()=> goToSection("subcription") }, 'Subscription'),
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("rewards") }, 'Rewards & Voucher'),
+                onClick: ()=> goToSection("rewards") }, 'Rewards & Voucher'),
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("help") }, 'Help Centre'),
+                onClick: ()=> goToSection("help") }, 'Help Centre'),
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("privacy") }, 'Privacy Policy'),
+                onClick: ()=> goToSection("privacy") }, 'Privacy Policy'),
             e('button', { className: 'side-link', 
-                onClick: ()=> setCurrentSection("terms-conditon") }, 'Terms and Condition'),
+                onClick: ()=> goToSection("terms-conditon") }, 'Terms and Condition'),
             e('button', { className: 'logout-btn', 
                 onClick: () => handleLogout() }, 'Logout')
         )

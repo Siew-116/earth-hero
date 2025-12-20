@@ -136,7 +136,7 @@ body {
 }
 
 .role-btn:hover, .role-btn.selected, .nav-text:hover,
-.category-card:hover {
+.category-card:hover, .nav-btn:hover {
     background-color: #3B4E3C;
     color: white;
 }
@@ -168,6 +168,28 @@ body {
   justify-content: center;
   align-items: center;
   gap: 1rem;
+}
+
+.success-overlay{
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
+.success-content {
+    background-color: #3B4E3C;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: baseline;
+}
+
+.success-content .fa-check {
+    padding: 0;
 }
 
 .error-content, .modal-content {
@@ -282,7 +304,8 @@ body {
 .title-container {
     display: flex;
     align-items: center;
-
+    text-decoration: none;
+    color: #567257;
 }
 
 
@@ -354,6 +377,8 @@ body {
     background: none;
 }
 .side-link, .logout-btn {
+    background: none;
+    border: none;
     text-decoration: none;
     color: white;
     padding: 0.5rem 2rem;
@@ -453,6 +478,10 @@ body {
     gap: 1rem;
 }
 
+.category-list a {
+    text-decoration: none;
+    color: #567257;
+}
 .category-card {
     display: flex;
     flex-direction: column;
@@ -468,8 +497,10 @@ body {
     font-size: large;
 }
 
+
 .category-name {
     text-align: center;
+
 }
 
 .title-container2 {
@@ -871,7 +902,7 @@ body {
     color: white;
 }
 
-.section-container button .active {
+.section-container button.active {
     background-color: #567257;
     color: white;
 }
@@ -879,6 +910,7 @@ body {
 .section-title {
     font-size: 1.5rem;
     margin: 0;
+    padding-bottom: 1rem;
 }
 
 .section-content {
@@ -886,6 +918,7 @@ body {
     flex-direction: column;
     padding: 2rem 10rem;
     gap: 1rem;
+    width: 100%;
     box-shadow: 2px 2px 6px -2px rgba(0,0,0,0.75);
 }
 
@@ -899,40 +932,144 @@ body {
     display: flex;
     flex-direction: row;
     gap: 1rem;
-    background-color: yellow;
 }
 
 .labels-col, .inputs-col {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background-color: blue;
 }
 
 .user-profile-form label {
     text-align: right;
     margin-right: 1rem;
     color: #ACAB9E;
-    padding: 0.5rem 0rem;
+    padding: 1rem 0rem;
 }
 
 .edit-mode input {
     background: none;
     border: 1px solid #567257;
     border-radius: 4px;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1rem;
     width: 20rem;
 }
 
+.view-mode label {
+    padding: 1.1rem 1rem;
+}
+.gender-group {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+}
+
+.edit-mode .gender-group input{
+    width: 3rem;
+}
 .view-mode input {
     color: black;
     background: none;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 1.2rem 1rem;
     cursor: not-allowed;
 }
 
+.view-mode select option {
+    background-color: red;
+}
+.form-btn-group {
+    display: flex;
+    gap: 1rem;
+}
+#edit-btn, #save-btn {
+    width: 6rem;
+}
 
+input[type="email"]:disabled, input[type="password"]:disabled,
+.edit-mode input[type="email"], .edit-mode input[type="password"]
+  {
+    color: #999;
+    cursor: not-allowed;
+    border: none;
+}
+
+.address-field {
+    padding: 1rem;
+    width:10rem;
+}
+
+.view-mode .address-field {
+    border: none;
+    color: black;
+}
+.phone-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.phone-code-field {
+    width: 4rem;
+}
+
+.edit-mode .phone-code-field {
+    border-radius: 4px 0px 0px 4px;
+} 
+.edit-mode .contact-input {
+    border-radius: 0px 4px 4px 0px;
+}
+
+.shop-container {
+    display: flex;
+    flex-direction: row;
+    margin: 2rem 2rem;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    color: #6E584A;
+    gap: 0.5rem;
+}
+
+.filter-form h2 {
+    margin: 0;
+}
+
+.filter-title {
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+.filter-input {
+    width: 7rem;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #6E584A;
+}
+
+.tags-dropdown {
+    color: #6E584A;
+    padding: 0.4rem 0.6rem;
+    width: 9rem;
+}
+
+.checkbox-label {
+    display: flex;
+    justify-content: baseline;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+.others-checkbox {
+    accent-color: #6E584A;
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
+#apply-btn {
+    margin-top: 1rem;
+}
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {
     body {
@@ -1089,5 +1226,25 @@ body {
     .section-title {
         font-size: 1.2rem;
     }
+
+    .section-container {
+        flex-direction: column;
+    }
+
+    .section-page {
+        width: 50rem;
+
+    }
+   
+    .section-content{
+        width: 45%;
+        padding: 1rem 1rem;
+    }
+
+    .section-content input, .section-content .gender-group input {
+        width: 70%;
+    }
+    
+    
 }
 

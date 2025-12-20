@@ -298,25 +298,24 @@ function LoginForm({switchToSignUp}) {
         if (hasError) return;
 
         console.log("Logging");
+        console.log("JSON SENT →", JSON.stringify({email, password, role}, null, 2));
         fetch("http://localhost/earth-hero/src/backend/login.php?action=login", {
             method: "POST",
             headers: { "Content-Type": "application/json"},
             credentials: "include" ,
             body: JSON.stringify({ email, password, role })
         })
-        .then(res => res.json())
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw data;
+            return data;
+        })
         .then(data => {
-            if (data.success) {
-                console.log(data);
-                alert(`Welcome back, ${data.name}`);
-                setEmail(''); setPassword(''); setRole('');
-                // Save token in memory
-                window.csrfToken = data.csrf_token;  // temporary storage
-                window.location.href = "http://localhost/earth-hero/src/index.html"; 
-            } else {
-                console.log(data);
-                setError(data.message);
-            }
+            window.csrfToken = data.csrf_token;
+            window.location.href = "/earth-hero/src/index.html";
+        })
+        .catch(err => {
+            setError(err.message || "Login failed");
         });
     }
 

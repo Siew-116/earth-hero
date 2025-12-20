@@ -62,7 +62,7 @@ if ($action === "login") {
         exit;
     }
     // Prevent session fixation
-    session_regenerate_id(true);
+    //session_regenerate_id(true);
 
     // Store user info in session
     $_SESSION['userID'] = $userID;
@@ -80,7 +80,8 @@ if ($action === "login") {
         "success" => true,
         "name" => $name,
         "email" => $email,
-        "role" => $dbRole
+        "role" => $dbRole,
+        "csrf_token" => $_SESSION['csrf_token']
     ]);
     exit;
 }
