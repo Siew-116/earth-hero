@@ -251,7 +251,84 @@ else if ($action === "allHashtags") {
 
 
 
-// View products details 
+// View products details (GET)
+if ($action === "viewProduct" && !empty($_GET['productId'])) {
+    $productId = $_GET['productId'];
+
+    $sql = "
+        SELECT
+            p.productID,
+            p.productName,
+            p.shipping_days AS shippingDays,
+            c.name AS category,
+            s.name AS sellerName,
+            s.location,
+            v.img,
+            v.name AS variationName,
+            v.salePrice,
+            v.rfrPrice,
+            v.stock,
+            v2.sold AS totalSold,
+            IFNULL(GROUP_CONCAT(DISTINCT t.name), '') AS tags
+        FROM products p
+        JOIN category c ON p.categoryID = c.categoryID
+        JOIN sellers s ON p.sellerID = s.sellerID
+        JOIN variations v ON v.productID = p.productID
+        LEFT JOIN variations v2 ON v2.productID = p.productID
+        LEFT JOIN producttag pt ON p.productID = pt.productID
+        LEFT JOIN tags t ON pt.tagID = t.tagID
+        WHERE p.productID = ?
+        GROUP BY v.varID;
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $productId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $product = null;
+    $variations = [];
+    $tags = [];
+
+    while ($row = $result->fetch_assoc()) {
+        if (!$product) {
+            $product = [
+                'id' => (int)$row['productID'],
+                'name' => $row['productName'],
+                'category' => $row['category'],
+                'sellerName' => $row['sellerName'],
+                'location' => $row['location'],
+                'deliveryTime' => $row['shippingDays'],
+                'image' => $row['img'],
+                'price' => (float)$row['salePrice'],
+                'originalPrice' => (float)$row['rfrPrice'],
+                'sales' => (int)$row['totalSold'],
+            ];
+        }
+
+        // Collect variations
+        $variations[] = [
+            'name' => $row['variationName'],
+            'price' => (float)$row['salePrice'],
+            'originalPrice' => (float)$row['rfrPrice'],
+            'stock' => (int)$row['stock']
+        ];
+
+        // Collect tags
+        if ($row['tags']) {
+            $tags = array_unique(array_merge($tags, explode(',', $row['tags'])));
+        }
+    }
+
+    if ($product) {
+        $product['variations'] = $variations;
+        $product['tags'] = $tags;
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($product ?? []);
+    exit();
+}
 
 
 
