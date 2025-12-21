@@ -4,19 +4,52 @@ function Shop() {
     const [successMsg, setSuccessMsg] = React.useState('');
     const urlParams = new URLSearchParams(window.location.search);
     const initialCategory = urlParams.get('category') || 'All';
+    const initialSearch = urlParams.get('search') || '';
     const [category, setCategory] = React.useState(initialCategory);
     const [filters, setFilters] = React.useState({
         location: '',
         lowestPrice: '',
         highestPrice: '',
         tagName: '',
-        //tagList: '',
         //isNewArrival: false,
         //isTopSales: false
     });
+    const [tagList, setTagList] = React.useState([]);
     const [products, setProducts] = React.useState([]);
-
+    const [searchText, setSearchText] = React.useState(initialSearch);
     
+    // Track search bar
+    const resultTitle = React.useMemo(() => {
+        const cat = category || 'All';
+
+        if (searchText && searchText.trim() !== '') {
+            return `${cat} > "${searchText}"`;
+        }
+
+        return cat;
+    }, [category, searchText]);
+
+    // Get all hashtags to be used in filtering
+    React.useEffect(() => {
+        fetch('/earth-hero/src/backend/products.php?action=allHashtags')
+            .then(res => res.json())
+            .then(data => {console.log(data);setTagList(data)})
+            .catch(console.error);
+    }, []);
+
+
+    // Always update filter
+    React.useEffect(() => {
+        function handleSearchEvent(e) {
+            const keyword = e.detail.search;
+            setSearchText(keyword);       
+            fetchProducts(category, keyword);
+        }
+
+        window.addEventListener('searchUpdated', handleSearchEvent);
+        return () => window.removeEventListener('searchUpdated', handleSearchEvent);
+    }, [category]);
+
 
     // Fetch all hashtags
     /*React.useEffect(() => {
@@ -32,7 +65,8 @@ function Shop() {
 
     // Search (apply to current list)
     // Filter (apply to current list)
-     // Fetch products whenever category changes
+    
+    // Fetch products whenever category changes
     React.useEffect(() => {
         const params = new URLSearchParams({
             category,
@@ -41,7 +75,12 @@ function Shop() {
             highestPrice: filters.highestPrice,
             tagName: filters.tagName
         });
-console.log(params.toString());
+
+        console.log(params.toString());
+        if (searchText) params.set('search', searchText);
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, '', newUrl);
+
         fetch(`/earth-hero/src/backend/products.php?action=getProducts&${params.toString()}`)
             .then(res => res.json())
             .then(data => {
@@ -50,10 +89,10 @@ console.log(params.toString());
             })
             .catch(console.error);
 
-    }, [category, filters]);
+    }, [category, filters, searchText]);
 
     
-
+    // Apply filter btn
     function handleApply() {
         e.preventDefault(); // prevent page reload
 
@@ -66,6 +105,8 @@ console.log(params.toString());
             isTopSales: filters.isTopSales ? 1 : '',
             category
         });
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, '', newUrl);
 
         fetch(`http://localhost/earth-hero/src/backend/products.php?action=getProducts&${params.toString()}`)
             .then(res => res.json())
@@ -119,10 +160,13 @@ console.log(params.toString());
                 e('select', { 
                     className:'tags-dropdown',
                     value: filters.tagName,
-                    onChange: (e) => setFilters(prev => ({ ...prev, tagName: e.target.value }))
+                    onChange: (e) =>
+                        setFilters(prev => ({ ...prev, tagName: e.target.value }))
                 },
-                    e('option', { value: filters.tagName}, 'Select hashtags')
-                    /*,...tagList.map(tag => e('option', { key: tag.id, value: tag.name }, tag.name))*/
+                    e('option', { value: '' }, 'All hashtags'),
+                    ...tagList.map(tag =>
+                        e('option', { key: tag.name, value: tag.name }, `#${tag.name}`)
+                    )
                 ),
                 // Others
                 e('label', {
@@ -155,9 +199,101 @@ console.log(params.toString());
         // Shop Content
         e('div', {className: 'shop-content'},
             // Category
-            // Search result
+            e('div', { className: 'category-container' },
+                e('div', { className: 'category-list' },
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Home%20%26%20Kitchen',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-kitchen-set' }),
+                        e('p', { className: 'category-name' }, 'Home & Kitchen')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Cloth%20%26%20Accessories',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-shirt' }),
+                        e('p', { className: 'category-name' }, 'Cloth & Accessories')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Beauty%20%26%20Personal%20Care',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-paintbrush' }),
+                        e('p', { className: 'category-name' }, 'Beauty & Personal Care')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Health%20%26%20Wellness',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-prescription-bottle-medical' }),
+                        e('p', { className: 'category-name' }, 'Health & Wellness')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Food%20%26%20Beverages',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-utensils' }),
+                        e('p', { className: 'category-name' }, 'Food & Beverages')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Electronics%20%26%20Gadgets',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-computer' }),
+                        e('p', { className: 'category-name' }, 'Electronics & Gadgets')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Garden%20%26%20Outdoor',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-seedling' }),
+                        e('p', { className: 'category-name' }, 'Garden & Outdoor')
+                    ),
+
+                    e('a', {
+                        href: '/earth-hero/src/shop.html?category=Kids%20%26%20Pets%20Essentials',
+                        className: 'category-card'
+                    },
+                        e('i', { className: 'fa-solid fa-bone' }),
+                        e('p', { className: 'category-name' }, 'Kids & Pets Essentials')
+                    )
+                )
+            ),
+
+            // Search result   
+            e('div', { className: 'search-result-title' },
+                e('span', {
+                    className: 'breadcrumb-link',
+                    onClick: () => {
+                        setCategory('All');
+                        setSearchText('');
+                        const url = new URL(window.location);
+                        url.searchParams.delete('category');
+                        url.searchParams.delete('search');
+                        window.history.replaceState({}, '', url);
+                    }
+                }, 'ALL'),
+                (category !== 'All' || searchText) && e('span', null,
+                    ' > ' + (category !== 'All' ? category : '') +
+                    (searchText ? ` > "${searchText}"` : '')
+                )
+            ),
+            
             // Shop List
-            e(ProductList, { products })
+            e('div', {className: 'product-result'},
+                e(ProductList, { products }),
+            ),
+            e('div', { className: 'subtext' },
+                "That’s everything we found for you."
+            )
         )
     );
     

@@ -5,7 +5,7 @@ include 'config.php';
 $action = $_GET['action'] ?? '';
 $products = [];
 
-// Filter products (GET)
+// Filter product list(GET)
 if ($action === "getProducts") {
     
     $sql = "
@@ -220,7 +220,36 @@ else if ($action === "top-sellers") {
     }
 }
 
-// All products
+// All hashtags (GET)
+else if ($action === "allHashtags") {
+
+    $sql = "
+        SELECT
+            t.tagID,
+            t.name
+        FROM tags t
+        ORDER BY t.name ASC
+    ";
+
+    $result = $conn->query($sql);
+
+    $tags = [];
+
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $tags[] = [
+                'id'   => (int)$row['tagID'],
+                'name' => $row['name']
+            ];
+        }
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($tags);
+    exit;
+}
+
+
 
 // View products details 
 
