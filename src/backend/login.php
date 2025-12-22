@@ -62,7 +62,7 @@ if ($action === "login") {
         exit;
     }
     // Prevent session fixation
-    //session_regenerate_id(true);
+    session_regenerate_id(true);
 
     // Store user info in session
     $_SESSION['userID'] = $userID;

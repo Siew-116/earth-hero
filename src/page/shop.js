@@ -6,7 +6,6 @@ function Shop() {
     const initialCategory = urlParams.get('category') || 'All';
     const initialSearch = urlParams.get('search') || '';
     const initialProductId = urlParams.get('productId');
-    const [selectedProductId, setSelectedProductId] = React.useState(initialProductId);
     const [category, setCategory] = React.useState(initialCategory);
     const [filters, setFilters] = React.useState({
         location: '',
@@ -17,11 +16,18 @@ function Shop() {
         //isTopSales: false
     });
     const [tagList, setTagList] = React.useState([]);
-    const [products, setProducts] = React.useState([]);
+    const [products, setProducts] = React.useState([]); // product list
     const [searchText, setSearchText] = React.useState(initialSearch);
-    const [selectedProduct, setSelectedProduct] = React.useState(null);
+    const [selectedProduct, setSelectedProduct] = React.useState(null); // single product
+    const [activeVar, setActiveVar] = React.useState(null);
+    const [quantity, setQuantity] = React.useState(1);
+    const [activeTab, setActiveTab] = React.useState('description'); // default tab
 
-    
+
+    React.useEffect(() => {
+    console.log('Selected variation changed:', activeVar);
+}, [activeVar]);
+
     // Track search bar
     const resultTitle = React.useMemo(() => {
         const cat = category || 'All';
@@ -81,21 +87,14 @@ function Shop() {
     }, [category]);
 
 
-    // Fetch all hashtags
-    /*React.useEffect(() => {
-        fetch('/src/backend/products.php?action=allHashtags') // your backend endpoint
-            .then(res => res.json())
-            .then(data => setTagList(data))
-            .catch(err => console.error(err));
-    }, []);*/
+    // Load default variation 
+    React.useEffect(() => { 
+        if (selectedProduct?.variations?.length) { 
+            const firstAvailable = selectedProduct.variations.find(v => v.stock > 0); 
+            setActiveVar(firstAvailable || selectedProduct.variations[0]); 
+        } 
+    }, [selectedProduct]);
 
-    // Return all products (refresh will clear all search result)
-    // Return filtered products
-    // Redirect and get product details
-
-    // Search (apply to current list)
-    // Filter (apply to current list)
-    
     // Fetch products whenever category changes
     React.useEffect(() => {
         let endpoint = 'getProducts';
@@ -158,6 +157,7 @@ function Shop() {
             .then(res => res.json())
             .then(data => {
                 // Update products list state
+                setProduct(data);
                 console.log(data);
             })
             .catch(err => console.error(err));
@@ -166,11 +166,11 @@ function Shop() {
     
 
     // Conditional render (product list/ product details)
-    
     return e('div', { className: 'shop-container' },
         selectedProduct
             // Product Details UI
             ? e('div', {className: 'product-details-container'},
+                // Back button
                 e('button', {
                     className: 'back-btn',
                     onClick: () => {
@@ -183,8 +183,218 @@ function Shop() {
                         window.history.pushState({}, '', url);
                     }
                 }, '< Back to Shop'),
-                e('div', null, "CAN YOU SEEEEEEEEE")
+                // Product details card
+                e('div', {className: 'details-container'},
+                    // Left details
+                    e('div', {className: 'left-details'},
+                        e('p', { className: 'p-category' }, selectedProduct.category),
+                        e('p', { className: 'p-name' }, selectedProduct.name),
+                        e('div', { id:'p-tag',className: 'product-tags' },
+                            (selectedProduct.tags || []).map((tag, index) => 
+                                e('p', { key: index, id: 'hashtags' }, null, tag)
+                            )
+                        ),
+                        e('div', { className: 'p-img-container' },
+                        e('img', {
+                            className: 'product-img',
+                            src: activeVar?.image,
+                            alt: selectedProduct.name
+                        }))
+                    ),
+                    // Right details
+                    e('div', {className: 'right-details'},
+                        e('div', { className: 'price-container' },
+                            e('h3', { id: 'p-price' }, null, `RM ${activeVar?.price}`),
+                            e('p', { id: 'p-ori-price' }, null, `RM ${activeVar?.originalPrice}`)
+                        ),
+                        e('div', { className: 'product-info' },
+                            e('p',{ id: 'product-sales' }, null, `${activeVar?.sold} sold`),
+                            e('p',{ id: 'product-location' }, null, `From ${selectedProduct.location}`)
+                        ),
+                        e('div', { className: 'seller-container' },
+                            e('i', { className: 'fa-solid fa-shop' }),
+                            e('p', { className: 'word-text' }, selectedProduct.sellerName)
+                        ),
+                        e('div', { className: 'ship-container' },
+                            e('i', { className: 'fa-solid fa-truck' }),
+                            e('p', { className: 'word-text' }, `Shipping within ${selectedProduct.shippingDays} days`)
+                        ),
+                        e('h4', { className: 'variation-title' }, 'Variations'),
+                        //Varaitons
+                        e('div', { className: 'variation-buttons' },
+                            (selectedProduct?.variations || []).map((v, idx) => {
+                                const isSelected = activeVar?.name === v.name; // match by name
+                                const isOutOfStock = v.stock === 0;
+
+                                return e('button', {
+                                key: v.id || idx,
+                                className: `variation-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`,
+                                disabled: isOutOfStock,
+                                onClick: () => {
+                                    if (!isOutOfStock) {
+                                    setActiveVar(v); 
+                                    }
+                                }
+                                }, v.name);
+                            })
+                        ),
+                        e('div', { className: 'details-action' },
+                            e('div', { className: 'left-selector' },
+                                // Selected amount
+                                e('div', { className: 'qty-selector' },
+                                    e('button', {
+                                        className: 'qty-btn',
+                                        onClick: () => setQuantity(prev => Math.max(1, prev - 1)) // min 1
+                                    }, '-'),
+                                    e('span', { className: 'qty-value' }, quantity),
+                                    e('button', {
+                                        className: 'qty-btn',
+                                        onClick: () => setQuantity(prev => Math.min(activeVar?.stock || 1, prev + 1)) // max stock
+                                    }, '+')
+                                ),
+                                // Stock
+                                e('p', { className: 'sub-text' }, `${activeVar?.stock} stock available`),
+                            ),
+                            // Add to cart button
+                            e('button', {className:'add-cart-btn'}, "Add to Cart")
+                        )
+
+                    )
+                ),
+
+                // Product Info Tabs
+                e('div', { className: 'p-info' },
+
+                    // Tab headers
+                    e('div', { className: 'p-info-tabs' },
+                        ['description', 'eco', 'reviews'].map(tab => {
+                            const tabLabel = tab === 'description' ? 'Description'
+                                            : tab === 'eco' ? 'Eco Description'
+                                            : 'Reviews';
+
+                            const tabClass = activeTab === tab ? 'tab active' : 'tab';
+
+                            return e(
+                                'button',
+                                {
+                                    key: tab,
+                                    className: tabClass,
+                                    onClick: () => setActiveTab(tab)
+                                },
+                                tabLabel
+                            );
+                        })
+                    ),
+
+                    // Tab content
+                    e('div', { className: 'p-info-content' },
+                        activeTab === 'description' && e('p', null, selectedProduct.description),
+                        activeTab === 'eco' && e('p', null, "THis i s made by eco dfirned;ly porudct"),
+                        activeTab === 'reviews' && e('div', null,
+                            e('div', {className: 'review-header'},
+                                e('p', {className: 'review-rate'}, '4.2 /5'),
+                                e('div', {className: 'star-group1'},
+                                    e('i', { className: 'fa fa-star' }),
+                                    e('i', { className: 'fa fa-star' }),
+                                    e('i', { className: 'fa fa-star' }),
+                                    e('i', { className: 'fa fa-star' }),
+                                    e('i', { className: 'fa fa-star' })
+                                ),
+                                e('div', { className: 'review-filter' },
+                                    e('button', {className: 'review-btn'}, 'All' ),
+                                    e('button', {className: 'review-btn'}, 'With Media' ),
+                                    e('select', { 
+                                        className: 'review-dropdown',
+                                        value: 'Variation 1',
+                                        onChange: (event) => console.log(event.target.value)
+                                    },
+                                        e('option', { value: '' }, 'Choose variation'),
+                                        e('option', { value: 'Variation 1' }, 'Variation 1'),
+                                        e('option', { value: 'Variation 2' }, 'Variation 2'),
+                                        e('option', { value: 'Variation 3' }, 'Variation 3')
+
+                                    ),
+                                )   
+                            ),
+                            e('div', {className: 'review-content'},
+                                e('div', {className: 'comment-container'},
+                                    e('div', {className: 'comment-title'},
+                                        e('h5', {className:'author'}, "Alice1232"),
+                                        e('p', null , "Variation1")
+                                    ),
+                                    e('div', {className: 'star-group2'},
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' })
+                                    ),
+                                    e('p', {className:'comment-time'} , "2025-11-25 15:58"),
+                                    e('p', {className:'comment-text'}, "I really appreciate the sustainability nehind this products.Knowing they are made form organic materials make me feel good for my purchase. The quality is good."),
+                                    e('div', {className: 'review-img-container'},
+                                        e('img', { src: '../assets/review-img.webp', alt: 'logo' })
+                                    )
+                                ),
+                                e('div', {className: 'comment-container'},
+                                    e('div', {className: 'comment-title'},
+                                        e('h5', {className:'author'}, "Alice1232"),
+                                        e('p', null , "Variation1")
+                                    ),
+                                    e('div', {className: 'star-group2'},
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' })
+                                    ),
+                                    e('p', {className:'comment-time'} , "2025-11-25 15:58"),
+                                    e('p', {className:'comment-text'}, "I really appreciate the sustainability nehind this products.Knowing they are made form organic materials make me feel good for my purchase. The quality is good."),
+                                    e('div', {className: 'review-img-container'},
+                                        e('img', { src: '../assets/review-img.webp', alt: 'logo' })
+                                    )
+                                ),
+                                e('div', {className: 'comment-container'},
+                                    e('div', {className: 'comment-title'},
+                                        e('h5', {className:'author'}, "Alice1232"),
+                                        e('p', null , "Variation1")
+                                    ),
+                                    e('div', {className: 'star-group2'},
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' })
+                                    ),
+                                    e('p', {className:'comment-time'} , "2025-11-25 15:58"),
+                                    e('p', {className:'comment-text'}, "I really appreciate the sustainability nehind this products.Knowing they are made form organic materials make me feel good for my purchase. The quality is good."),
+                                    e('div', {className: 'review-img-container'},
+                                        e('img', { src: '../assets/review-img.webp', alt: 'logo' })
+                                    )
+                                ),
+                                e('div', {className: 'comment-container'},
+                                    e('div', {className: 'comment-title'},
+                                        e('h5', {className:'author'}, "Alice1232"),
+                                        e('p', null , "Variation1")
+                                    ),
+                                    e('div', {className: 'star-group2'},
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' }),
+                                        e('i', { className: 'fa fa-star' })
+                                    ),
+                                    e('p', {className:'comment-time'} , "2025-11-25 15:58"),
+                                    e('p', {className:'comment-text'}, "I really appreciate the sustainability nehind this products.Knowing they are made form organic materials make me feel good for my purchase. The quality is good."),
+                                    e('div', {className: 'review-img-container'},
+                                        e('img', { src: '../assets/review-img.webp', alt: 'logo' })
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             )
+
             // Product List UI
             : e(React.Fragment, null, 
             //Filter

@@ -260,6 +260,7 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
             p.productID,
             p.productName,
             p.shipping_days AS shippingDays,
+            p.description,
             c.name AS category,
             s.name AS sellerName,
             s.location,
@@ -268,7 +269,7 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
             v.salePrice,
             v.rfrPrice,
             v.stock,
-            v2.sold AS totalSold,
+            v.sold,
             IFNULL(GROUP_CONCAT(DISTINCT t.name), '') AS tags
         FROM products p
         JOIN category c ON p.categoryID = c.categoryID
@@ -295,23 +296,22 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
             $product = [
                 'id' => (int)$row['productID'],
                 'name' => $row['productName'],
+                'description' => $row['description'],
                 'category' => $row['category'],
                 'sellerName' => $row['sellerName'],
                 'location' => $row['location'],
-                'deliveryTime' => $row['shippingDays'],
-                'image' => $row['img'],
-                'price' => (float)$row['salePrice'],
-                'originalPrice' => (float)$row['rfrPrice'],
-                'sales' => (int)$row['totalSold'],
+                'shippingDays' => $row['shippingDays']
             ];
         }
 
         // Collect variations
         $variations[] = [
             'name' => $row['variationName'],
-            'price' => (float)$row['salePrice'],
-            'originalPrice' => (float)$row['rfrPrice'],
-            'stock' => (int)$row['stock']
+            'image' => $row['img'],
+            'price' => number_format((float)$row['salePrice'], 2, '.', ''),
+            'originalPrice' => number_format((float)$row['rfrPrice'], 2, '.', ''),
+            'stock' => (int)$row['stock'],
+            'sold' => (int)$row['sold']
         ];
 
         // Collect tags
