@@ -3,7 +3,7 @@ function PageHeader() {
     const [user, setUser] = React.useState({ loggedIn: false });
     const [openProfile, setOpenProfile] = React.useState(false);
     const [openMenu, setOpenMenu] = React.useState(false);
-    const [cartCount, setCartCount] = React.useState(3);
+    const [cartCount, setCartCount] = React.useState(0);
 
     // Check session on page load
     React.useEffect(() => {
@@ -18,6 +18,7 @@ function PageHeader() {
                     loggedIn: true,
                     ...data.user,
                     defaultAddress: data.default_address || {}
+                    
                 });
             } else {
                 setUser({ loggedIn: false });
@@ -27,6 +28,20 @@ function PageHeader() {
             console.error("Failed to fetch user:", err);
             setUser({ loggedIn: false });
         });
+    }, []);
+
+    // Get cart count
+    React.useEffect(() => {
+        fetch('http://localhost/earth-hero/src/backend/cart.php?action=getCartCount', {
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setCartCount(data.totalItems);
+            }
+        })
+        .catch(err => console.error("Failed to fetch cart count:", err));
     }, []);
 
 
@@ -58,6 +73,19 @@ function PageHeader() {
         window.location.href = `http://localhost/earth-hero/src/profile.html?section=${section}`;
     }
 
+    // Listen from shop page add cart
+    React.useEffect(() => {
+        function handleCartUpdate(e) {
+            console.log('cartUpdated event received', e.detail.quantity);
+            setCartCount(prev => prev + (e.detail.quantity || 0));
+        }
+
+        window.addEventListener('cartUpdated', handleCartUpdate);
+
+        return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+    }, []);
+
+
 
     return e('header', { className: 'site-header' },
         e('a', { href: "./index.html", className: 'title-container'},
@@ -79,7 +107,7 @@ function PageHeader() {
             e('a', { className: 'nav-btn', href: '#' }, 'My Purchase'),
             e("button", {className: 'cart-btn'},
                 e('i', { className: 'fa fa-cart-shopping' }),
-                    cartCount > 0 && e('span', {className: 'cart-count-badge',}, 10)
+                    cartCount > 0 && e('span', {className: 'cart-count-badge',}, cartCount)
             ),
             e("button", {
                 onClick: checkLogin,
@@ -103,7 +131,7 @@ function PageHeader() {
             e('a', { className: 'side-link', href: '#' }, 'Contact'),
             e('a', { className: 'side-link', href: '#' }, 'Join Us'),
             e('a', { className: 'side-link', href: '#' }, 'My Purchase'),
-            e('a', { className: 'side-link', href: '#' }, 'Cart'),
+            e('a', { className: 'side-link', href: '#' }, `Cart (${cartCount})`),
             e('button', { className: 'side-link', onClick: ()=> setOpenProfile(true) }, 'User')
         ),
         // PROFILE MENU SIBEBAR

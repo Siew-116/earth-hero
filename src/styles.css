@@ -1087,6 +1087,9 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     gap: 2rem;
 }
 
+.search-result-container {
+    align-self: flex-start;
+}
 .search-result-title {
     font-weight: bold;
     align-self: flex-start;
@@ -1099,6 +1102,11 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     color: #3B4E3C;
 }
 
+.search-result-total {
+    margin: 0;
+    color: #ACAB9E;
+    align-self: flex-start;
+}
 .back-btn {
     background: none;
     border: none;

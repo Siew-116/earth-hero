@@ -2,6 +2,7 @@
 function Shop() {
     const [csrfToken, setCsrfToken] = React.useState('');
     const [successMsg, setSuccessMsg] = React.useState('');
+    const [errorMsg, setErrorMsg] = React.useState('');
     const urlParams = new URLSearchParams(window.location.search);
     const initialCategory = urlParams.get('category') || 'All';
     const initialSearch = urlParams.get('search') || '';
@@ -23,10 +24,23 @@ function Shop() {
     const [quantity, setQuantity] = React.useState(1);
     const [activeTab, setActiveTab] = React.useState('description'); // default tab
 
+    const [user, setUser] = React.useState({ loggedIn: false });
+    const [cartCount, setCartCount] = React.useState(0);
+
+    // Authenticate user status
+    React.useEffect(() => {
+        fetch('/earth-hero/src/backend/users.php?action=getUser', { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.loggedIn) setUser({ loggedIn: true, ...data.user });
+            })
+            .catch(() => setUser({ loggedIn: false }));
+    }, []);
+
 
     React.useEffect(() => {
-    console.log('Selected variation changed:', activeVar);
-}, [activeVar]);
+        console.log('Selected variation changed:', activeVar);
+    }, [activeVar]);
 
     // Track search bar
     const resultTitle = React.useMemo(() => {
@@ -79,7 +93,6 @@ function Shop() {
         function handleSearchEvent(e) {
             const keyword = e.detail.search;
             setSearchText(keyword);       
-            fetchProducts(category, keyword);
         }
 
         window.addEventListener('searchUpdated', handleSearchEvent);
@@ -157,16 +170,67 @@ function Shop() {
             .then(res => res.json())
             .then(data => {
                 // Update products list state
-                setProduct(data);
+                setProducts(data);
                 console.log(data);
             })
             .catch(err => console.error(err));
     }
 
-    
+    // Add to cart
+    function handleAddToCart() {
+        if (!activeVar || !selectedProduct) return;
+
+        const payload = {
+            productId: selectedProduct.id,
+            variationId: activeVar.varId,
+            quantity
+        };
+
+        console.log(payload)
+        fetch('http://localhost/earth-hero/src/backend/cart.php?action=addCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', 
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setSuccessMsg('Added to cart successfully');
+                console.log(data);
+                const quantity = payload.quantity ?? 0; 
+                const event = new CustomEvent('cartUpdated', { detail: { quantity } });
+                window.dispatchEvent(event);
+            } else {
+                setErrorMsg('Update failed: ' + data.message);
+            }
+        })
+        .catch(err => console.error('Update failed', err));
+    }
+
+    React.useEffect(() => {
+        if (!successMsg) return;
+
+        const timer = setTimeout(() => {
+            setSuccessMsg('');
+        }, 1500); // 3 seconds
+
+        return () => clearTimeout(timer);
+    }, [successMsg]);
+
 
     // Conditional render (product list/ product details)
     return e('div', { className: 'shop-container' },
+        successMsg && e(SuccessOverlay, {
+            message: successMsg,
+            onClose: () => setSuccessMsg('')
+        }),
+        errorMsg && e(ErrorOverlay, {
+            message: errorMsg,
+            onClose: () => setErrorMsg('')
+        }),
         selectedProduct
             // Product Details UI
             ? e('div', {className: 'product-details-container'},
@@ -233,6 +297,7 @@ function Shop() {
                                 onClick: () => {
                                     if (!isOutOfStock) {
                                     setActiveVar(v); 
+                                    setQuantity(1);
                                     }
                                 }
                                 }, v.name);
@@ -256,7 +321,7 @@ function Shop() {
                                 e('p', { className: 'sub-text' }, `${activeVar?.stock} stock available`),
                             ),
                             // Add to cart button
-                            e('button', {className:'add-cart-btn'}, "Add to Cart")
+                            e('button', {className:'add-cart-btn', onClick: handleAddToCart}, "Add to Cart")
                         )
 
                     )
@@ -543,27 +608,32 @@ function Shop() {
                 ),
 
                 // Search result   
-                e('div', { className: 'search-result-title' },
-                    e('span', {
-                        className: 'breadcrumb-link',
-                        onClick: () => {
-                            setCategory('All');
-                            setSearchText('');
-                            const url = new URL(window.location);
-                            url.searchParams.delete('category');
-                            url.searchParams.delete('search');
-                            window.history.replaceState({}, '', url);
-                        }
-                    }, 'ALL'),
-                    // Category (only if not All)
-                    category && category !== 'All' &&
-                        e('span', null, ` > ${category}`),
+                e('div', {className: 'search-result-container'},
+                    e('div', { className: 'search-result-title' },
+                        e('span', {
+                            className: 'breadcrumb-link',
+                            onClick: () => {
+                                setCategory('All');
+                                setSearchText('');
+                                const url = new URL(window.location);
+                                url.searchParams.delete('category');
+                                url.searchParams.delete('search');
+                                window.history.replaceState({}, '', url);
+                            }
+                        }, 'ALL'),
+                        // Category (only if not All)
+                        category && category !== 'All' &&
+                            e('span', null, ` > ${category}`),
 
-                    // Search text (only if exists)
-                    searchText &&
-                        e('span', null, ` > "${searchText}"`)
+                        // Search text (only if exists)
+                        searchText &&
+                            e('span', null, ` > "${searchText}"`)
+                    ),
+                    // Total search results
+                    e('div', {className: 'search-result-total'},
+                        e('p', null, `${products.length} search result${products.length !== 1 ? 's' : ''} found`)
+                    )
                 ),
-                
                 // Shop List
                 e('div', {className: 'product-result'},
                     e(ProductList, { products }),

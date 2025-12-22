@@ -265,6 +265,7 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
             s.name AS sellerName,
             s.location,
             v.img,
+            v.varID AS variationID,
             v.name AS variationName,
             v.salePrice,
             v.rfrPrice,
@@ -306,6 +307,7 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
 
         // Collect variations
         $variations[] = [
+            'varId' => $row['variationID'],
             'name' => $row['variationName'],
             'image' => $row['img'],
             'price' => number_format((float)$row['salePrice'], 2, '.', ''),

@@ -61,8 +61,102 @@ if ($action === "login") {
         echo json_encode(["success" => false, "message" => "Invalid email or password"]);
         exit;
     }
+
+    // Save guess session ID
+    $oldSessionId = session_id();
     // Prevent session fixation
     session_regenerate_id(true);
+
+    // Refresh cart
+    $stmt = $conn->prepare(
+        "SELECT orderID FROM orders 
+        WHERE session_id = ? AND userID IS NULL AND status = 'Pending' 
+        LIMIT 1"
+    );
+    $stmt->bind_param("s", $oldSessionId);
+    $stmt->execute();
+    $guestOrder = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ($guestOrder) {
+        $guestOrderId = $guestOrder['orderID'];
+
+        // 1. Find user pending order
+        $stmt = $conn->prepare(
+            "SELECT orderID FROM orders 
+            WHERE userID = ? AND status = 'Pending' 
+            LIMIT 1"
+        );
+        $stmt->bind_param("i", $userID);
+        $stmt->execute();
+        $userOrder = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if ($userOrder) {
+            $userOrderId = $userOrder['orderID'];
+
+            // 2. Fetch all guest items
+            $stmt = $conn->prepare("SELECT * FROM items WHERE orderID = ?");
+            $stmt->bind_param("i", $guestOrderId);
+            $stmt->execute();
+            $guestItems = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+
+            foreach ($guestItems as $item) {
+                // Check if user order already has the same variation
+                $stmt = $conn->prepare(
+                    "SELECT * FROM items WHERE orderID = ? AND varID = ? LIMIT 1"
+                );
+                $stmt->bind_param("ii", $userOrderId, $item['varID']);
+                $stmt->execute();
+                $existing = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+
+                if ($existing) {
+                    // Sum qty and update netPrice
+                    $newQty = $existing['qty'] + $item['qty'];
+                    $unitPrice = $item['netPrice'] / $item['qty']; // calculate unit price
+                    $newNetPrice = $unitPrice * $newQty;
+
+                    $stmt = $conn->prepare(
+                        "UPDATE items SET qty = ?, netPrice = ? WHERE itemID = ?"
+                    );
+                    $stmt->bind_param("iid", $newQty, $newNetPrice, $existing['itemID']);
+                    $stmt->execute();
+                    $stmt->close();
+                } else {
+                    // Move guest item to user order
+                    $stmt = $conn->prepare(
+                        "UPDATE items SET orderID = ? WHERE itemID = ?"
+                    );
+                    $stmt->bind_param("ii", $userOrderId, $item['itemID']);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+            }
+
+            // Update totalItem count
+            $conn->query(
+                "UPDATE orders 
+                SET totalItem = (SELECT SUM(qty) FROM items WHERE orderID = $userOrderId)
+                WHERE orderID = $userOrderId"
+            );
+
+            // Delete guest order
+            $stmt = $conn->prepare("DELETE FROM orders WHERE orderID = ?");
+            $stmt->bind_param("i", $guestOrderId);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            // No user order: assign guest order to user
+            $stmt = $conn->prepare(
+                "UPDATE orders SET userID = ?, session_id = NULL WHERE orderID = ?"
+            );
+            $stmt->bind_param("ii", $userID, $guestOrderId);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
 
     // Store user info in session
     $_SESSION['userID'] = $userID;

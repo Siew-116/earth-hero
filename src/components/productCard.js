@@ -13,17 +13,7 @@ function ProductCard({ product }) {
                         id:'view-product-btn', 
                         className: 'button secondary',
                         onClick: () => {
-                            const url = new URL(window.location);
-                            // clear all search params
-                            url.search = '';
-                            // add action params
-                            url.searchParams.set('action', 'viewProduct');
-                            // set only productId
-                            url.searchParams.set('productId', product.id);
-                            // update URL without reload
-                            window.history.pushState({}, '', url);
-                            // trigger listener to notify URL changes
-                            window.dispatchEvent(new Event('popstate'));
+                            window.location.href = `/earth-hero/src/shop.html?action=viewProduct&productId=${product.id}`;
                         }
                     }, 'View Details')
                 )
