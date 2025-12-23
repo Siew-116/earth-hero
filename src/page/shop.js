@@ -25,7 +25,10 @@ function Shop() {
     const [activeTab, setActiveTab] = React.useState('description'); // default tab
 
     const [user, setUser] = React.useState({ loggedIn: false });
-    const [cartCount, setCartCount] = React.useState(0);
+      const allOutOfStock = React.useMemo(() => {
+        if (!selectedProduct?.variations?.length) return true;
+        return selectedProduct.variations.every(v => v.stock <= 0);
+    }, [selectedProduct]);
 
     // Authenticate user status
     React.useEffect(() => {
@@ -100,13 +103,19 @@ function Shop() {
     }, [category]);
 
 
-    // Load default variation 
-    React.useEffect(() => { 
-        if (selectedProduct?.variations?.length) { 
-            const firstAvailable = selectedProduct.variations.find(v => v.stock > 0); 
-            setActiveVar(firstAvailable || selectedProduct.variations[0]); 
-        } 
+    // Load default variation selection
+    React.useEffect(() => {
+        if (!selectedProduct?.variations?.length) return;
+
+        const firstAvailable = selectedProduct.variations.find(v => v.stock > 0);
+
+        if (firstAvailable) {
+            setActiveVar(firstAvailable);
+        } else {
+            setActiveVar(selectedProduct.variations[0]); // all out of stock
+        }
     }, [selectedProduct]);
+
 
     // Fetch products whenever category changes
     React.useEffect(() => {
@@ -178,7 +187,7 @@ function Shop() {
 
     // Add to cart
     function handleAddToCart() {
-        if (!activeVar || !selectedProduct) return;
+        if (allOutOfStock || !activeVar || !selectedProduct) return;
 
         const payload = {
             productId: selectedProduct.id,
@@ -199,6 +208,25 @@ function Shop() {
         .then(data => {
             if (data.success) {
                 setSuccessMsg('Added to cart successfully');
+                // Update activeVar stock
+                /*setActiveVar(prev => prev ? { 
+                    ...prev, 
+                    stock: prev.stock - quantity,
+                    sold: prev.sold + quantity
+                } : prev);
+          
+                // Update stock inside selectedProduct.variations
+                setSelectedProduct(prev => {
+                    if (!prev) return prev;
+
+                    const updatedVariations = prev.variations.map(v => 
+                        v.varId === activeVar.varId 
+                        ? { ...v, stock: v.stock - quantity, sold: v.sold + quantity } 
+                        : v
+                    );
+
+                    return { ...prev, variations: updatedVariations };
+                });*/
                 console.log(data);
                 const quantity = payload.quantity ?? 0; 
                 const event = new CustomEvent('cartUpdated', { detail: { quantity } });
@@ -209,6 +237,7 @@ function Shop() {
         })
         .catch(err => console.error('Update failed', err));
     }
+    
 
     React.useEffect(() => {
         if (!successMsg) return;
@@ -287,22 +316,30 @@ function Shop() {
                         //Varaitons
                         e('div', { className: 'variation-buttons' },
                             (selectedProduct?.variations || []).map((v, idx) => {
-                                const isSelected = activeVar?.name === v.name; // match by name
-                                const isOutOfStock = v.stock === 0;
+                                const isSelected = activeVar?.varId === v.varId;
+                                const isOutOfStock = v.stock <= 0;
 
                                 return e('button', {
-                                key: v.id || idx,
-                                className: `variation-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`,
-                                disabled: isOutOfStock,
-                                onClick: () => {
-                                    if (!isOutOfStock) {
-                                    setActiveVar(v); 
-                                    setQuantity(1);
+                                    key: v.varId || idx,
+                                    className: `
+                                        variation-btn
+                                        ${isSelected ? 'selected' : ''}
+                                        ${isOutOfStock ? 'out-of-stock' : ''}
+                                    `,
+                                    disabled: isOutOfStock,
+                                    onClick: () => {
+                                        if (!isOutOfStock) {
+                                            setActiveVar(v);
+                                            setQuantity(1);
+                                        }
                                     }
-                                }
                                 }, v.name);
                             })
                         ),
+                        allOutOfStock && e('p', { className: 'out-stock-hint' },
+                            'All variations are currently out of stock'
+                        ),
+
                         e('div', { className: 'details-action' },
                             e('div', { className: 'left-selector' },
                                 // Selected amount
@@ -321,7 +358,15 @@ function Shop() {
                                 e('p', { className: 'sub-text' }, `${activeVar?.stock} stock available`),
                             ),
                             // Add to cart button
-                            e('button', {className:'add-cart-btn', onClick: handleAddToCart}, "Add to Cart")
+                            e('button', {
+                                className: `add-cart-btn ${allOutOfStock ? 'disabled' : ''}`,
+                                disabled: allOutOfStock,
+                                onClick: allOutOfStock ? null : handleAddToCart
+                            },
+                                allOutOfStock ? 'Out of Stock' : 'Add to Cart'
+                            )
+
+
                         )
 
                     )

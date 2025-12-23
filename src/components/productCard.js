@@ -1,14 +1,88 @@
 // ========== ProductCard ==========
 function ProductCard({ product }) {
+    const [successMsg, setSuccessMsg] = React.useState('');
+    const [stock, setStock] = React.useState(product.stock);
+    const [sales, setSales] = React.useState(product.sales);
 
+    function handleAddToCart() {
+        // ALL variations out of stock → do nothing
+        if (product.allOutOfStock) return;
+
+        // Cover variation out of stock → redirect to details
+        if (stock <= 0) {
+            window.location.href =
+                `/earth-hero/src/shop.html?action=viewProduct&productId=${product.id}`;
+            return;
+        }
+
+        const payload = {
+            productId: product.id,
+            variationId: product.coverVarId,
+            quantity: 1
+        };
+
+        fetch('http://localhost/earth-hero/src/backend/cart.php?action=addCart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // update UI immediately
+                //setStock(prev => prev - 1);
+                //setSales(prev => prev + 1);
+
+                window.dispatchEvent(
+                    new CustomEvent('cartUpdated', { detail: { quantity: 1 } })
+                );
+
+                setSuccessMsg('Added to cart successfully');
+            }
+        })
+        .catch(console.error);
+    }
+
+    let buttonText = 'Add to Cart';
+    let buttonClass = 'button';
+    let buttonDisabled = false;
+
+    if (product.allOutOfStock) {
+        buttonText = 'Out of Stock';
+        buttonClass = 'button disabled';
+        buttonDisabled = true;
+    } else if (stock <= 0) {
+        buttonText = 'Choose Options';
+    }
+
+    React.useEffect(() => {
+        if (!successMsg) return;
+
+        const timer = setTimeout(() => {
+            setSuccessMsg('');
+        }, 1500); // 3 seconds
+
+        return () => clearTimeout(timer);
+    }, [successMsg]);
+    
     const e = React.createElement;
     return e('div', { className: 'product-container' },
+        successMsg && e(SuccessOverlay, {
+            message: successMsg,
+            onClose: () => setSuccessMsg('')
+        }),
         e('div', { className: 'product-card' },
         e('div', { className: 'img-container' },
             e('img', { className: 'product-img', src: product.image, alt: product.name }),
             // HOVER OVERLAY
                 e('div', { className: 'card-overlay' },
-                    e('button', { id:'add-cart-btn', className: 'button' }, 'Add to Cart'),
+                    e('button', {
+                        id: 'add-cart-btn',
+                        className: buttonClass,
+                        disabled: buttonDisabled,
+                        onClick: handleAddToCart
+                    }, buttonText),
                     e('button', { 
                         id:'view-product-btn', 
                         className: 'button secondary',
@@ -26,14 +100,15 @@ function ProductCard({ product }) {
                 e('p', { id: 'product-ori-price' }, null, `RM ${product.originalPrice}`)
             ),
             e('div', { className: 'product-info' },
-                e('p',{ id: 'product-sales' }, null, `${product.sales} sold`),
+                e('p',{ id: 'product-sales' }, null, `${sales} sold`),
                 e('p',{ id: 'product-location' }, null, `From ${product.location}`)
             ),
             e('div', { className: 'product-tags' },
                (product.tags || []).map((tag, index) => 
                     e('p', { key: index, id: 'hashtags' }, null, tag)
                 )
-            )
+            ),
+            product.allOutOfStock && e('p', { className: 'out-stock-hint' }, 'Currently out of stock')
         )
         )
     );

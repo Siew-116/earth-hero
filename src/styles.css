@@ -1,4 +1,4 @@
-body {
+html, body {
     font-family: 'Poppins',sans-serif;
     padding: 0;
     margin: 0;
@@ -79,6 +79,7 @@ body {
     border: none;
     border-radius: 4px;
     font-weight: bold;
+    min-width: 100px;
 }
 
 .long-button {
@@ -98,6 +99,11 @@ body {
     color: #896A58;
 }
 
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .main-text {
     color: #567257;
 }
@@ -113,6 +119,8 @@ body {
 .word-text {
     color: black;
 }
+
+
 .error {
     color: red;
 }
@@ -199,6 +207,9 @@ body {
   text-align: center;
 }
 
+.error-content p {
+    margin: 2rem 0rem;
+}
 
 .input {
     border: none!important;
@@ -528,6 +539,9 @@ body {
     flex: 0 0 14rem;
 }
 
+.product-card:hover {
+    background-color: #f5f5f5
+}
 .img-container {
   width: 100%;
   aspect-ratio: 1 / 1;     
@@ -870,8 +884,8 @@ body {
 
 .cart-count-badge {
     position: absolute;
-    top: 58px;
-    right: 100px;
+    top: 46px;
+    right: 96px;
     background-color: #3B4E3C;
     color: white;
     border-radius: 50%;
@@ -1067,10 +1081,11 @@ input[type="email"]:disabled, input[type="password"]:disabled,
 .checkbox-label {
     display: flex;
     justify-content: baseline;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
+    gap:1rem;
+    margin: 0;
+    align-items: center;
 }
-.others-checkbox {
+.others-checkbox, .checkbox-label input {
     accent-color: #6E584A;
     margin: 0;
     width: 1rem;
@@ -1176,7 +1191,15 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     font-size: 1.5rem;
 }
 
-#p-ori-price {
+#i-price, #i-ori-price {
+    margin: 0;
+    font-size: 1rem;
+}
+
+#i-price {
+    font-weight: normal;
+}
+#p-ori-price, #i-ori-price {
     color: #ACAB9E;
     text-decoration: line-through;
 }
@@ -1329,11 +1352,15 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     gap: 0.5rem;
 }
 
-.review-btn, .review-dropdown {
+.review-btn, .review-dropdown, .variation-dropdown {
     color: #567257;
     padding: 0.4rem 0.6rem;
     background: none;
     border-radius: 4px;
+}
+
+.variation-dropdown {
+    width: 8rem;
 }
 
 .review-btn {
@@ -1384,6 +1411,140 @@ input[type="email"]:disabled, input[type="password"]:disabled,
 .review-img-container img {
     width: 50%;
     height: 100%;
+}
+
+.out-stock-hint {
+    color: red;
+}
+
+.cart-container {
+    padding: 2rem 0rem;
+}
+.cart-page-title {
+    color: #896A58;
+    margin: 0;
+    margin-bottom: 2rem;
+}
+
+.cart-title-wrapper, .item-list-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: baseline;
+    margin: 1rem 0rem;
+}
+
+.cart-title-wrapper {
+    justify-content: space-between;
+}
+
+.shop-group {
+    width: 100%;
+}
+.item-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 80vh;
+    overflow-y: auto;   
+    overflow-x: hidden;
+    width: 100%;
+    align-items: center;
+}
+
+.selector-wrapper {
+    display: flex;
+    gap: 1rem;
+    color: #896A58;
+    align-items: baseline;
+    justify-items: baseline;
+}
+
+
+.cart-header {
+    display: grid;
+    grid-template-columns: 
+        2fr      /* checkbox */
+        0.8fr       /* variation */
+        0.8fr         /* unit price */
+        0.5fr         /* quantity */
+        1fr;        /* total */
+    align-items: center;
+}
+
+.cart-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 
+        1fr      /* checkbox */
+        1fr
+        0.8fr       /* variation */
+        0.8fr         /* unit price */
+        0.5fr         /* quantity */
+        0.8fr        /* total */
+        0.2fr;        /* delete */
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cart-row:hover {
+    background-color: #f5f5f5;
+}
+
+.fa-trash {
+    margin: 0;
+}
+
+.fa-trash:hover {
+    color: #3B4E3C;
+}
+.c-title {
+    margin: 0;
+    color: #ACAB9E;
+}
+
+
+.item-img-container {      
+  background: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;  
+  height: 50%;       
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  flex-grow: 0;      
+  overflow: hidden;
+}
+
+.item-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.item-label {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-start;
+    gap: 1rem;
+    background-color: blueviolet;
+}
+
+.item-name {
+    color: black;
+    width: 10rem;
+    font-weight: 400;
+    font-size: 1rem;
+    margin: 0;
+    
+}
+
+.item-price {
+    font-size: 1rem;
+    width: 100%;
 }
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {

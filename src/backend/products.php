@@ -12,11 +12,14 @@ if ($action === "getProducts") {
         SELECT
             p.productID,
             p.productName,
+            p.cover_varID,
             c.name AS category,
             v.img,
             v.salePrice,
             v.rfrPrice,
+            v.stock,
             SUM(v2.sold) AS totalSold,
+            SUM(v2.stock) AS totalStock,
             s.location,
             GROUP_CONCAT(DISTINCT t.name) AS tags
         FROM products p
@@ -83,13 +86,16 @@ if ($action === "getProducts") {
         $products[] = [
             'id' => (int)$row['productID'],
             'name' => $row['productName'],
+            'coverVarId' => $row['cover_varID'],
             'category' => $row['category'],
             'image' => $row['img'],
             'price' => (float)$row['salePrice'],
             'originalPrice' => (float)$row['rfrPrice'],
+            'stock' => (float)$row['stock'],
             'sales' => (int)$row['totalSold'],
             'location' => $row['location'],
-            'tags' => $row['tags'] ? explode(',', $row['tags']) : []
+            'tags' => $row['tags'] ? explode(',', $row['tags']) : [],
+            'allOutOfStock' => ((int)$row['totalStock'] === 0)
         ];
     }
 
@@ -105,11 +111,14 @@ else if ($action === "new-arrivals") {
        SELECT
             p.productID,
             p.productName,
+            p.cover_varID,
             c.name AS category,
             v.img,
             v.salePrice,
             v.rfrPrice,
+            v.stock,
             COALESCE(SUM(v2.sold), 0) AS totalSold,
+            SUM(v2.stock) AS totalStock,
             s.location,
             IFNULL(GROUP_CONCAT(DISTINCT t.name), '') AS tags,
             p.created_at
@@ -139,13 +148,16 @@ else if ($action === "new-arrivals") {
         $products[] = [
             'id' => (int)$row['productID'],
             'name' => $row['productName'],
+            'coverVarId' => $row['cover_varID'],
             'category' => $row['category'],
             'image' => $row['img'],
             'price' => (float)$row['salePrice'],
             'originalPrice' => (float)$row['rfrPrice'],
+            'stock' => (float)$row['stock'],
             'sales' => (int)$row['totalSold'],
             'location' => $row['location'],
-            'tags' => $row['tags'] ? explode(',', $row['tags']) : []
+            'tags' => $row['tags'] ? explode(',', $row['tags']) : [],
+            'allOutOfStock' => ((int)$row['totalStock'] === 0)
         ];
     }
     }
@@ -158,11 +170,14 @@ else if ($action === "top-sellers") {
         SELECT
             p.productID,
             p.productName,
+            p.cover_varID,
             c.name AS category,
             v.img,
             v.salePrice,
             v.rfrPrice,
+            v.stock,
             SUM(v2.sold) AS totalSold,
+            SUM(v2.stock) AS totalStock,
             s.location,
             GROUP_CONCAT(DISTINCT t.name) AS tags
         FROM products p
@@ -207,13 +222,16 @@ else if ($action === "top-sellers") {
         $products[] = [
             'id' => (int)$row['productID'],
             'name' => $row['productName'],
+            'coverVarId' => $row['cover_varID'],
             'category' => $row['category'],
             'image' => $row['img'],
             'price' => (float)$row['salePrice'],
             'originalPrice' => (float)$row['rfrPrice'],
+            'stock' => (float)$row['stock'],
             'sales' => (int)$row['totalSold'],
             'location' => $row['location'],
-            'tags' => $row['tags'] ? explode(',', $row['tags']) : []
+            'tags' => $row['tags'] ? explode(',', $row['tags']) : [],
+            'allOutOfStock' => ((int)$row['totalStock'] === 0)
         ];
     }
    

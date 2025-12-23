@@ -38,6 +38,8 @@ function PageHeader() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+                console.log("Get cart count")
+                console.log(data);
                 setCartCount(data.totalItems);
             }
         })
@@ -85,8 +87,6 @@ function PageHeader() {
         return () => window.removeEventListener('cartUpdated', handleCartUpdate);
     }, []);
 
-
-
     return e('header', { className: 'site-header' },
         e('a', { href: "./index.html", className: 'title-container'},
         // Logo
@@ -105,9 +105,9 @@ function PageHeader() {
             e('a', { className: 'nav-btn', href: '#' }, 'Contact'),
             e('a', { className: 'nav-btn', href: '#' }, 'Join Us'),
             e('a', { className: 'nav-btn', href: '#' }, 'My Purchase'),
-            e("button", {className: 'cart-btn'},
-                e('i', { className: 'fa fa-cart-shopping' }),
-                    cartCount > 0 && e('span', {className: 'cart-count-badge',}, cartCount)
+            e("button", {className: 'cart-btn', onClick: () => { window.location.href = './cart.html'; } },
+                e('i', { className: 'fa fa-cart-shopping'}),
+                    cartCount > 0 && e('span', {className: 'cart-count-badge'}, cartCount)
             ),
             e("button", {
                 onClick: checkLogin,
@@ -125,14 +125,14 @@ function PageHeader() {
             onMouseLeave: () => setOpenMenu(false)
         },
             e('a', { className: 'side-link', href: "./index.html" }, 'Home'),
-            e('a', { className: 'side-link', href: "./shop.html", }, 'Shop Now'),
+            e('a', { className: 'side-link', href: "./shop.html" }, 'Shop Now'),
             e('a', { className: 'side-link', href: '#' }, 'About'),
             e('a', { className: 'side-link', href: '#' }, 'Pricing'),
             e('a', { className: 'side-link', href: '#' }, 'Contact'),
             e('a', { className: 'side-link', href: '#' }, 'Join Us'),
             e('a', { className: 'side-link', href: '#' }, 'My Purchase'),
-            e('a', { className: 'side-link', href: '#' }, `Cart (${cartCount})`),
-            e('button', { className: 'side-link', onClick: ()=> setOpenProfile(true) }, 'User')
+            e('a', { className: 'side-link', href: './cart.html' }, `Cart (${cartCount})`),
+            e('button', { className: 'side-link', onClick: checkLogin}, 'User')
         ),
         // PROFILE MENU SIBEBAR
         user.loggedIn && openProfile && e('div', {
