@@ -7,6 +7,19 @@ $products = [];
 
 // Add cart (POST)
 if ($action === "addCart") {
+    $headers = getallheaders();
+    $token = $headers['X-CSRF-Token'] ?? '';
+
+    if (!$token || !isset($_SESSION['csrf_token'])) {
+        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+        exit();
+    }
+
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
+
     $data = json_decode(file_get_contents("php://input"), true);
     $varId = isset($data['variationId']) ? (int)$data['variationId'] : 0;
     $qty = isset($data['quantity']) ? (int)$data['quantity'] : 1;
@@ -112,6 +125,7 @@ if ($action === "addCart") {
 
 // GET CART COUNT (GET)
 else if ($action === "getCartCount") {
+    
     $sessionId = session_id();
     $userId = $_SESSION['userID'] ?? null;
 
@@ -259,8 +273,21 @@ else if ($action === "getCart") {
     exit();
 }
 
-// UPDATE CART ITEM (POST)
+// UPDATE CART ITEM (PUT)
 else if ($action === "updateItem") {
+    $headers = getallheaders();
+    $token = $headers['X-CSRF-Token'] ?? '';
+
+    if (!$token || !isset($_SESSION['csrf_token'])) {
+        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+        exit();
+    }
+
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
+
     $data = json_decode(file_get_contents("php://input"), true);
 
     $itemId = (int)$data['itemID'];
@@ -371,8 +398,21 @@ else if ($action === "updateItem") {
 }
 
 
-// DELETE CART ITEM (POST)
+// DELETE CART ITEM (DELETE)
 else if ($action === "deleteItem") {
+    $headers = getallheaders();
+    $token = $headers['X-CSRF-Token'] ?? '';
+
+    if (!$token || !isset($_SESSION['csrf_token'])) {
+        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+        exit();
+    }
+
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
+
     $data = json_decode(file_get_contents("php://input"), true);
     $itemId = (int)($data['itemID'] ?? 0);
 

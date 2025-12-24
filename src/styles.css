@@ -162,11 +162,13 @@ html, body {
     color: #3B4E3C;
 }
 
-.text-button:hover {
-    color: #6E584A;
+.text-button:hover, .close-btn:hover, .voucher-card:hover, 
+.search-bar:hover, .cart-row:hover, .summary-expand-btn:hover,
+.product-card:hover, .search-input:hover {
+    background-color: #f5f5f5;
 }
 
-.error-overlay, .modal-overlay {
+.error-overlay, .modal-overlay, .voucher-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
@@ -183,6 +185,17 @@ html, body {
   top: 1rem;
   right: 1rem;
 }
+
+.voucher-overlay {
+    z-index: 200;
+}
+.close-btn {
+    font-size: 2rem;
+    color: #896A58;
+    border: none;
+    background: none;
+}
+
 
 .success-content {
     background-color: #3B4E3C;
@@ -207,8 +220,85 @@ html, body {
   text-align: center;
 }
 
+.voucher-modal {
+    background: white;
+    padding: 3rem 4rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow-y: auto;   
+    overflow-x: hidden;
+    max-height: 70vh;
+}
+
+.voucher-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.voucher-card {
+    border: 1px solid #567257;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    width: 40rem;
+}
+
+
+
+.voucher-card h4, .voucher-card p{
+    margin: 0;
+}
+
+.voucher-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 1rem;
+}
+.voucher-name, .voucher-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.voucher-name {
+    background-color: #567257;
+    color: white;
+}
+.voucher-name h4{
+    text-align: center;
+    padding: 2rem;
+}
+
+.voucher-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.5rem 1rem;
+    justify-content: center;
+}
+
+.voucher-expired {
+    margin: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+.voucher-button, .voucher-qty {
+    padding: 1rem;
+}
 .error-content p {
     margin: 2rem 0rem;
+}
+
+.voucher-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #896A58;
 }
 
 .input {
@@ -463,13 +553,10 @@ html, body {
     justify-content: space-between;
 }
 
-
-
 .search-input {
     border: none;
     outline: none;
 }
-
 
 
 .search-bar .left-wrapper {
@@ -539,9 +626,7 @@ html, body {
     flex: 0 0 14rem;
 }
 
-.product-card:hover {
-    background-color: #f5f5f5
-}
+
 .img-container {
   width: 100%;
   aspect-ratio: 1 / 1;     
@@ -1288,6 +1373,9 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     height: 2rem;
 } 
 
+.item-qty-selector {
+    width: 10rem;
+}
 .qty-btn:hover {
     background-color: #567257;
     color: white;
@@ -1298,17 +1386,21 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     font-size: 1rem;
 }
 
-.add-cart-btn {
+.add-cart-btn, .checkout-btn {
     border: none;
     background-color: #896A58;
     color: white;
     border-radius: 4px;
-    padding: 0.5rem 1rem;
-        font-weight: bold;
+    padding: 1rem 1.2rem;
+    font-weight: bold;
 }
 
-.add-cart-btn:hover {
+.add-cart-btn:hover, .checkout-btn:hover {
     background-color: #6E584A;
+}
+
+.checkout-btn {
+    margin-left: auto;
 }
 
 .p-info-tabs {
@@ -1487,11 +1579,8 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     margin-bottom: 1rem;
 }
 
-.cart-row:hover {
-    background-color: #f5f5f5;
-}
 
-.fa-trash {
+.fa-trash, .fa-clock {
     margin: 0;
 }
 
@@ -1545,6 +1634,102 @@ input[type="email"]:disabled, input[type="password"]:disabled,
 .item-price {
     font-size: 1rem;
     width: 100%;
+}
+
+.cart-summary-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 2rem;
+    background-color: white;
+    box-shadow: 2px 2px 6px -2px rgba(0,0,0,0.75);
+    z-index: 99;
+    transition: 0.3s ease-in-out;
+    margin: 1rem 4rem;
+}
+
+.summary-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.4rem 0rem;
+}
+
+.summary-row h2 {
+    color: #896A58;
+    margin: 0;
+}
+
+.total-price-summary {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.total-price-summary p{
+    margin: 0;
+}
+
+.summary-expand-btn {
+    margin-left: auto;
+    background: none;
+    color: #896A58;
+    border: none;
+}
+
+.summary-row p {
+    margin: 0;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;  
+}
+
+.price-details {
+    color: #ACAB9E;
+}
+
+.voucher-row {
+    color: #896A58;
+}
+
+.voucher-chosen {
+    border: 1px solid #896A58;
+    font-weight: 500;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+}
+
+.voucher-option {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.checkout-content {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkout-form label {
+    font-size: 2rem;
+    font-weight: 500;
+}
+.payment-summary {
+    box-shadow: 0px 2px 4px -2px rgba(0,0,0,0.75);
+    border-radius:8px;
 }
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {
@@ -1738,5 +1923,74 @@ input[type="email"]:disabled, input[type="password"]:disabled,
         flex-direction: column;
         gap: 0.5rem;
     }
+    
+    .cart-header {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+    }
+
+    .cart-header .c-title {
+        display: none;
+    }
+
+    .selector-wrapper {
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .cart-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+
+    .item-img-container {
+        width: 80px;
+        height: 80px;
+    }
+
+    .item-name {
+        width: 100%;
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    
+    .item-price {
+        font-size: 0.9rem;
+    }
+    
+    .variation-dropdown {
+        align-self: flex-start;    
+    }
+
+    .item-qty-selector {
+        width: 8rem;
+    }
+
+    .fa-trash {
+        margin-top: 1rem;
+    }
+
+    .voucher-card {
+        grid-template-columns: 1fr;
+        width: 10rem;
+    }
+
+   .voucher-expired {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+   }
+
+   .voucher-button {
+        padding: 0;
+        padding-bottom: 1rem;
+   }
+   
 }
 

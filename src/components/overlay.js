@@ -9,7 +9,7 @@ function ErrorOverlay({ message, onClose }) {
     );
 }
 
-function SuccessOverlay({ message, onClose }) {
+function SuccessOverlay({ message }) {
     const e = React.createElement;
     return e('div', { className: 'success-overlay' },
         e('div', { className: 'success-content' },

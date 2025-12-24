@@ -21,7 +21,6 @@ function RegisterForm({switchToLogin}) {
 
     // Regex patterns
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$])([^\s]{6,8})$/;
 
     // Real-time validation functions
     function validateName(val) {
@@ -67,10 +66,11 @@ function RegisterForm({switchToLogin}) {
     }
 
     // Handle submit
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         console.log("Submitting form");
-         // Run validations
+
+        // Run validations
         const newErrors = {
             name: validateName(name),
             email: validateEmail(email),
@@ -83,43 +83,44 @@ function RegisterForm({switchToLogin}) {
         const hasError = Object.values(newErrors).some(err => err);
         if (hasError) return; // stop submission if any error
 
-        // Check email availability on server
-        fetch(`http://localhost/earth-hero/src/backend/signUp.php?action=checkEmail&email=${encodeURIComponent(email)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.exists) {
-                    console.log("Stop: existing account");
-                    // Update error state
-                    setErrors(prev => ({ ...prev, email: 'Account already exists. Please log in or try again.' }));
-                    return; // stop process
-                }
+        try {
+            // Check email availability on server
+            const resCheck = await fetch(`http://localhost/earth-hero/src/backend/signUp.php?action=checkEmail&email=${encodeURIComponent(email)}`);
+            const dataCheck = await resCheck.json();
 
-                // if email is available
-                // sign up account to backend
-                fetch("http://localhost/earth-hero/src/backend/signUp.php?action=register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include", // REQUIRED for session cookie
-                    body: JSON.stringify({ name, email, password, role }) 
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("Sucess register");
-                        alert(`User ${data.name} registered!`);
-                        // Save token in memory
-                        window.csrfToken = data.csrf_token;
-                        console.log(data);
-                        // reset the input field if success
-                        setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setRole('');
-                        // reset error states
-                        setErrors({name:'', email:'', password:'', confirmPassword:'', role:''});
-                    } else {
-                        setError(data.message || "Registration failed.");
-                        setErrors(prev => ({ ...prev, email: data.message }));
-                    }
-                });
+            if (dataCheck.exists) {
+                console.log("Stop: existing account");
+                // Update error state
+                setErrors(prev => ({ ...prev, email: 'Account already exists. Please log in or try again.' }));
+                return; // stop process
+            }
+
+            // if email is available, sign up account to backend
+            const resRegister = await fetch("http://localhost/earth-hero/src/backend/signUp.php?action=register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include", // REQUIRED for session cookie
+                body: JSON.stringify({ name, email, password, role })
             });
+            const dataRegister = await resRegister.json();
+
+            if (dataRegister.success) {
+                console.log("Sucess register");
+                alert(`User ${dataRegister.name} registered!`);
+                // Save token in memory
+                window.csrfToken = dataRegister.csrf_token;
+                console.log(dataRegister);
+                // reset the input field if success
+                setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setRole('');
+                // reset error states
+                setErrors({ name: '', email: '', password: '', confirmPassword: '', role: '' });
+            } else {
+                setError(dataRegister.message || "Registration failed.");
+                setErrors(prev => ({ ...prev, email: dataRegister.message }));
+            }
+        } catch (err) {
+            console.error('Registration failed', err);
+        }
     }
 
     // return sign Up Form
@@ -282,11 +283,12 @@ function LoginForm({switchToSignUp}) {
     }
 
     // Send login credentials to server
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         console.log(email);
         console.log(role);
         console.log(password);
         e.preventDefault();
+
         // Run validations
         const newErrors = {
             email: validateEmail(email),
@@ -298,26 +300,30 @@ function LoginForm({switchToSignUp}) {
         if (hasError) return;
 
         console.log("Logging");
-        console.log("JSON SENT →", JSON.stringify({email, password, role}, null, 2));
-        fetch("http://localhost/earth-hero/src/backend/login.php?action=login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json"},
-            credentials: "include" ,
-            body: JSON.stringify({ email, password, role })
-        })
-        .then(async res => {
+        console.log("JSON SENT →", JSON.stringify({ email, password, role }, null, 2));
+
+        try {
+            const res = await fetch("http://localhost/earth-hero/src/backend/login.php?action=login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password, role })
+            });
+
             const data = await res.json();
             if (!res.ok) throw data;
-            return data;
-        })
-        .then(data => {
+
             window.csrfToken = data.csrf_token;
-            window.location.href = "/earth-hero/src/index.html";
-        })
-        .catch(err => {
+            if (data.role === "Admin") {
+                window.location.href = "/earth-hero/src/dashboard.html";
+            } else {
+                window.location.href = "/earth-hero/src/index.html";
+            }
+        } catch (err) {
             setError(err.message || "Login failed");
-        });
+        }
     }
+
 
     // return sign Up Form
     return e('form', { onSubmit: handleSubmit, className: "register-form" },

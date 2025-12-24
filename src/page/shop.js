@@ -1,6 +1,5 @@
 
 function Shop() {
-    const [csrfToken, setCsrfToken] = React.useState('');
     const [successMsg, setSuccessMsg] = React.useState('');
     const [errorMsg, setErrorMsg] = React.useState('');
     const urlParams = new URLSearchParams(window.location.search);
@@ -12,9 +11,7 @@ function Shop() {
         location: '',
         lowestPrice: '',
         highestPrice: '',
-        tagName: '',
-        //isNewArrival: false,
-        //isTopSales: false
+        tagName: ''
     });
     const [tagList, setTagList] = React.useState([]);
     const [products, setProducts] = React.useState([]); // product list
@@ -32,12 +29,17 @@ function Shop() {
 
     // Authenticate user status
     React.useEffect(() => {
-        fetch('/earth-hero/src/backend/users.php?action=getUser', { credentials: 'include' })
-            .then(res => res.json())
-            .then(data => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/earth-hero/src/backend/users.php?action=getUser', { credentials: 'include' });
+                const data = await res.json();
                 if (data.loggedIn) setUser({ loggedIn: true, ...data.user });
-            })
-            .catch(() => setUser({ loggedIn: false }));
+            } catch {
+                setUser({ loggedIn: false });
+            }
+        };
+
+        fetchUser();
     }, []);
 
 
@@ -45,32 +47,31 @@ function Shop() {
         console.log('Selected variation changed:', activeVar);
     }, [activeVar]);
 
-    // Track search bar
-    const resultTitle = React.useMemo(() => {
-        const cat = category || 'All';
-
-        if (searchText && searchText.trim() !== '') {
-            return `${cat} > "${searchText}"`;
-        }
-
-        return cat;
-    }, [category, searchText]);
-
+    
     // Track selected product Id to fetch details
     React.useEffect(() => {
-        function fetchSelectedProduct() {
+        const fetchSelectedProduct = async () => {
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('productId');
+
             if (!productId) {
                 setSelectedProduct(null);
                 return;
             }
-            console.log(productId)
-            fetch(`/earth-hero/src/backend/products.php?action=viewProduct&productId=${productId}`)
-                .then(res => res.json())
-                .then(data => {console.log(data);setSelectedProduct(data)})
-                .catch(console.error);
-        }
+
+            console.log(productId);
+
+            try {
+                const res = await fetch(
+                    `/earth-hero/src/backend/products.php?action=viewProduct&productId=${productId}`
+                );
+                const data = await res.json();
+                console.log(data);
+                setSelectedProduct(data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
         // run on mount
         fetchSelectedProduct();
@@ -82,13 +83,22 @@ function Shop() {
 
 
 
+
     // Get all hashtags to be used in filtering
     React.useEffect(() => {
-        fetch('/earth-hero/src/backend/products.php?action=allHashtags')
-            .then(res => res.json())
-            .then(data => setTagList(data))
-            .catch(console.error);
+        const fetchHashtags = async () => {
+            try {
+                const res = await fetch('/earth-hero/src/backend/products.php?action=allHashtags');
+                const data = await res.json();
+                setTagList(data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchHashtags();
     }, []);
+
 
 
     // Always update filter
@@ -146,21 +156,28 @@ function Shop() {
         }
 
         console.log(params.toString());
-        
+
         const url = `${window.location.pathname}?action=${endpoint}&${params.toString()}`;
         window.history.pushState({}, '', url);
 
-    
         fetch(`/earth-hero/src/backend/products.php?action=${endpoint}&${params.toString()}`)
-            .then(res => res.json())
-            .then(setProducts)
+            .then(res => res.text())
+            .then(text => {
+                let data = [];
+                try {
+                    if (text) data = JSON.parse(text);
+                } catch (err) {
+                    console.error('JSON parse error', err, text);
+                }
+                setProducts(data);
+            })
             .catch(console.error);
-
 
     }, [category, filters, searchText]);
 
+
     // Apply filter btn
-    function handleApply() {
+    function handleApply(e) {
         e.preventDefault(); // prevent page reload
 
         const params = new URLSearchParams({
@@ -172,13 +189,19 @@ function Shop() {
             isTopSales: filters.isTopSales ? 1 : '',
             category
         });
+
         const newUrl = `${window.location.pathname}?${params.toString()}`;
         window.history.pushState({}, '', newUrl);
 
-        fetch(`http://localhost/earth-hero/src/backend/products.php?action=getProducts&${params.toString()}`)
-            .then(res => res.json())
-            .then(data => {
-                // Update products list state
+        fetch(`/earth-hero/src/backend/products.php?action=getProducts&${params.toString()}`)
+            .then(res => res.text())
+            .then(text => {
+                let data = [];
+                try {
+                    if (text) data = JSON.parse(text);
+                } catch (err) {
+                    console.error('JSON parse error', err, text);
+                }
                 setProducts(data);
                 console.log(data);
             })
@@ -186,7 +209,7 @@ function Shop() {
     }
 
     // Add to cart
-    function handleAddToCart() {
+    async function handleAddToCart() {
         if (allOutOfStock || !activeVar || !selectedProduct) return;
 
         const payload = {
@@ -195,17 +218,21 @@ function Shop() {
             quantity
         };
 
-        console.log(payload)
-        fetch('http://localhost/earth-hero/src/backend/cart.php?action=addCart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include', 
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
+        console.log(payload);
+
+        try {
+            const res = await fetch('/earth-hero/src/backend/cart.php?action=addCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': window.csrfToken
+                },
+                credentials: 'include', 
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
             if (data.success) {
                 setSuccessMsg('Added to cart successfully');
                 // Update activeVar stock
@@ -214,7 +241,7 @@ function Shop() {
                     stock: prev.stock - quantity,
                     sold: prev.sold + quantity
                 } : prev);
-          
+        
                 // Update stock inside selectedProduct.variations
                 setSelectedProduct(prev => {
                     if (!prev) return prev;
@@ -234,9 +261,11 @@ function Shop() {
             } else {
                 setErrorMsg('Update failed: ' + data.message);
             }
-        })
-        .catch(err => console.error('Update failed', err));
+        } catch (err) {
+            console.error('Update failed', err);
+        }
     }
+
     
 
     React.useEffect(() => {

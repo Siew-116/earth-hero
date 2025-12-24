@@ -4,7 +4,7 @@ function ProductCard({ product }) {
     const [stock, setStock] = React.useState(product.stock);
     const [sales, setSales] = React.useState(product.sales);
 
-    function handleAddToCart() {
+    async function handleAddToCart() {
         // ALL variations out of stock → do nothing
         if (product.allOutOfStock) return;
 
@@ -21,18 +21,24 @@ function ProductCard({ product }) {
             quantity: 1
         };
 
-        fetch('http://localhost/earth-hero/src/backend/cart.php?action=addCart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
+        // Add to cart
+        try {
+            const res = await fetch('/earth-hero/src/backend/cart.php?action=addCart', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-Token': window.csrfToken 
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
             if (data.success) {
                 // update UI immediately
-                //setStock(prev => prev - 1);
-                //setSales(prev => prev + 1);
+                // setStock(prev => prev - 1);
+                // setSales(prev => prev + 1);
 
                 window.dispatchEvent(
                     new CustomEvent('cartUpdated', { detail: { quantity: 1 } })
@@ -40,8 +46,9 @@ function ProductCard({ product }) {
 
                 setSuccessMsg('Added to cart successfully');
             }
-        })
-        .catch(console.error);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     let buttonText = 'Add to Cart';

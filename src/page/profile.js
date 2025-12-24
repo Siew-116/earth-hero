@@ -1,5 +1,5 @@
 function MyProfile() {
-    const [csrfToken, setCsrfToken] = React.useState('');
+    const [errorMsg, setErrorMsg] = React.useState('');
     const [successMsg, setSuccessMsg] = React.useState('');
     const [isEditing, setIsEditing] = React.useState(false);
     const [originalData, setOriginalData] = React.useState(null);
@@ -25,66 +25,75 @@ function MyProfile() {
     const [contactNumber, setContactNumber] = React.useState('');
 
     React.useEffect(() => {
-        fetch('http://localhost/earth-hero/src/backend/users.php?action=getUser', {
-            credentials: 'include'
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data) return;
-            console.log(data);
-            const user = data.user || {};
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/earth-hero/src/backend/users.php?action=getUser', {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (!data) return;
+                console.log(data);
+                const user = data.user || {};
+                window.csrfToken = data.csrf_token;
 
-            setCsrfToken(data.csrf_token || '');
-            // User table
-            setUsername(user.username || ''); 
-            setFullname(user.name || '');
-            setEmail(user.email || '');
-            setGender(user.gender || '');
-            setBirthday(user.birthday && user.birthday !== '0000-00-00' ? user.birthday : '');
+                // User table
+                setUsername(user.username || ''); 
+                setFullname(user.name || '');
+                setEmail(user.email || '');
+                setGender(user.gender || '');
+                setBirthday(user.birthday && user.birthday !== '0000-00-00' ? user.birthday : '');
 
-            // Address table (default address)
-            const addr = data.default_address || {};
-            setRecipient(addr.recipient || '');
-            setAddress(addr.address || '');
-            setPostcode(addr.postcode || '');
-            setCity(addr.city || '');
-            setState(addr.state || '');
-            setCountry(addr.country || '');
-            setPhoneCode(addr.phoneCode || '');
-            setContactNumber(addr.contact || '');
-        })
-        .catch(err => console.error('Failed to fetch user data', err));
+                // Address table (default address)
+                const addr = data.default_address || {};
+                setRecipient(addr.recipient || '');
+                setAddress(addr.address || '');
+                setPostcode(addr.postcode || '');
+                setCity(addr.city || '');
+                setState(addr.state || '');
+                setCountry(addr.country || '');
+                setPhoneCode(addr.phoneCode || '');
+                setContactNumber(addr.contact || '');
+            } catch (err) {
+                console.error('Failed to fetch user data', err);
+            }
+        };
+        fetchUser();
     }, []);
 
 
+
     // Update profile
-    function handleSave(e) {
+    async function handleSave(e) {
         e.preventDefault();
         const payload = {
             username, fullname, gender, birthday,
             recipient, address, postcode, city, state, country, phoneCode, contactNumber
         };
 
-        console.log(payload)
-        console.log(csrfToken)
-        fetch('http://localhost/earth-hero/src/backend/users.php?action=updateUser', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken },
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
+        try {
+            const res = await fetch('/earth-hero/src/backend/users.php?action=updateUser', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': window.csrfToken 
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
             if (data.success) {
                 setSuccessMsg('Profile updated successfully');
                 setIsEditing(false);
             } else {
-                alert('Update failed: ' + data.message);
+                setErrorMsg('Update failed: ' + data.message);
             }
-        })
-        .catch(err => console.error('Update failed', err));
+        } catch (err) {
+            console.error('Update failed', err);
+        }
     }
+
 
     React.useEffect(() => {
         if (!successMsg) return;
@@ -172,6 +181,10 @@ function MyProfile() {
         successMsg && e(SuccessOverlay, {
             message: successMsg,
             onClose: () => setSuccessMsg('')
+        }),
+        errorMsg && e(ErrorOverlay, {
+            message: errorMsg,
+            onClose: () => setErrorMsg('')
         }),
         e('p', { className: 'section-title' }, "Edit Profile"),
         e('div', { className: 'section-content' },

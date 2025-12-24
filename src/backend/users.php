@@ -3,13 +3,26 @@ require_once 'config.php'; // session_start() is here
 
 header('Content-Type: application/json');
 
+
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+// ACTION: GET GUEST TOKEN
+if ($action === "getGuestToken") {
+    if (!isset($_SESSION['guestToken'])) {
+        // Generate a random token
+        $_SESSION['guestToken'] = bin2hex(random_bytes(16)); // 32-char hex token
+    }
+    echo json_encode(['success' => true, 'token' => $_SESSION['guestToken']]);
+    exit();
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['email'])) {
     echo json_encode(['loggedIn' => false]);
     exit;
 }
 
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
 
 
 // ACTION: GET USER STATUS AND INFO (GET)
@@ -53,8 +66,21 @@ if ($action === "getUser") {
     exit;
 }
 
+
 // ACTION: UPDATE USER (POST)
 if ($action === 'updateUser') {
+    $headers = getallheaders();
+    $token = $headers['X-CSRF-Token'] ?? '';
+
+    if (!$token || !isset($_SESSION['csrf_token'])) {
+        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+        exit();
+    }
+
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
     
     $data = json_decode(file_get_contents("php://input"), true);
     
@@ -134,6 +160,59 @@ if ($action === 'updateUser') {
     ]);
     exit;
     $conn->close();
+    exit;
+}
+
+// ACTION: GET USER VOUCHERS (GET)
+if ($action === "getVouchers") {
+
+    // Must be logged in
+    if (!isset($_SESSION['email'])) {
+        echo json_encode(["success" => false, "message" => "Not logged in"]);
+        exit;
+    }
+
+    // Get userID
+    $stmt = $conn->prepare("SELECT userID FROM users WHERE email=?");
+    $stmt->bind_param("s", $_SESSION['email']);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $user = $res->fetch_assoc();
+    $stmt->close();
+
+    if (!$user) {
+        echo json_encode(["success" => false, "message" => "User not found"]);
+        exit;
+    }
+
+    $userID = $user['userID'];
+
+    // Fetch vouchers:
+    $stmt = $conn->prepare("
+        SELECT 
+            voucherID,
+            userID,
+            name,
+            minSpend,
+            vendorLimit,
+            expiredDay,
+            qty,
+            discount
+        FROM vouchers
+        WHERE userID = ?
+          AND qty > 0
+        ORDER BY voucherID
+    ");
+
+    $stmt->bind_param("i", $userID);
+    $stmt->execute();
+    $vouchers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    echo json_encode([
+        "success" => true,
+        "vouchers" => $vouchers
+    ]);
     exit;
 }
 

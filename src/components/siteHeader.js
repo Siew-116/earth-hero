@@ -5,31 +5,49 @@ function PageHeader() {
     const [openMenu, setOpenMenu] = React.useState(false);
     const [cartCount, setCartCount] = React.useState(0);
 
-    // Check session on page load
-    React.useEffect(() => {
-        fetch('http://localhost/earth-hero/src/backend/users.php?action=getUser', {
-            credentials: 'include'
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.loggedIn) {
-                // Store full user info and default shipping
-                setUser({
-                    loggedIn: true,
-                    ...data.user,
-                    defaultAddress: data.default_address || {}
-                    
+   React.useEffect(() => {
+        const loadSession = async () => {
+            try {
+                // 1️⃣ Try to get logged-in user info
+                const resUser = await fetch('http://localhost/earth-hero/src/backend/users.php?action=getUser', {
+                    credentials: 'include'
                 });
-            } else {
+                const dataUser = await resUser.json();
+
+                if (dataUser.loggedIn) {
+                    // Logged-in user
+                    setUser({
+                        loggedIn: true,
+                        ...dataUser.user,
+                        defaultAddress: dataUser.default_address || {}
+                    });
+                    window.csrfToken = dataUser.csrf_token;
+                    window.loggedIn = true;
+                    console.log("User logged in:", window.csrfToken);
+                } else {
+                    // Guest user → get guest token
+                    setUser({ loggedIn: false });
+                    window.loggedIn = false;
+
+                    const resGuest = await fetch('http://localhost/earth-hero/src/backend/users.php?action=getGuestToken', {
+                        credentials: 'include'
+                    });
+                    const dataGuest = await resGuest.json();
+                    if (dataGuest.success) {
+                        window.csrfToken = dataGuest.token;
+                        console.log("Guest token set:", window.csrfToken);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to init session:", err);
                 setUser({ loggedIn: false });
             }
-        })
-        .catch(err => {
-            console.error("Failed to fetch user:", err);
-            setUser({ loggedIn: false });
-        });
+        };
+        loadSession();
     }, []);
 
+
+    
     // Get cart count
     React.useEffect(() => {
         fetch('http://localhost/earth-hero/src/backend/cart.php?action=getCartCount', {
@@ -51,7 +69,7 @@ function PageHeader() {
         if (user.loggedIn) {
             setOpenProfile(prev => !prev);
         } else {
-            window.location.href = 'http://localhost/earth-hero/src/register.html';
+            window.location.href = '/earth-hero/src/register.html';
         }
     }
     
@@ -132,7 +150,7 @@ function PageHeader() {
             e('a', { className: 'side-link', href: '#' }, 'Join Us'),
             e('a', { className: 'side-link', href: '#' }, 'My Purchase'),
             e('a', { className: 'side-link', href: './cart.html' }, `Cart (${cartCount})`),
-            e('button', { className: 'side-link', onClick: checkLogin}, 'User')
+            e('button', { className: 'side-link', onClick: checkLogin}, 'Account')
         ),
         // PROFILE MENU SIBEBAR
         user.loggedIn && openProfile && e('div', {
