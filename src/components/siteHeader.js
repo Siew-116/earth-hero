@@ -24,20 +24,7 @@ function PageHeader() {
                     window.csrfToken = dataUser.csrf_token;
                     window.loggedIn = true;
                     console.log("User logged in:", window.csrfToken);
-                } else {
-                    // Guest user → get guest token
-                    setUser({ loggedIn: false });
-                    window.loggedIn = false;
-
-                    const resGuest = await fetch('http://localhost/earth-hero/src/backend/users.php?action=getGuestToken', {
-                        credentials: 'include'
-                    });
-                    const dataGuest = await resGuest.json();
-                    if (dataGuest.success) {
-                        window.csrfToken = dataGuest.token;
-                        console.log("Guest token set:", window.csrfToken);
-                    }
-                }
+                } 
             } catch (err) {
                 console.error("Failed to init session:", err);
                 setUser({ loggedIn: false });

@@ -7,17 +7,22 @@ $products = [];
 
 // Add cart (POST)
 if ($action === "addCart") {
-    $headers = getallheaders();
-    $token = $headers['X-CSRF-Token'] ?? '';
+    $userId = $_SESSION['userID'] ?? null;
 
-    if (!$token || !isset($_SESSION['csrf_token'])) {
-        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
-        exit();
-    }
+    if ($userId) {
+        // Logged-in users must have valid CSRF token
+        $headers = getallheaders();
+        $token = $headers['X-CSRF-Token'] ?? '';
 
-    if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
-        exit();
+        if (!$token || !isset($_SESSION['csrf_token'])) {
+            echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+            exit();
+        }
+
+        if (!hash_equals($_SESSION['csrf_token'], $token)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit();
+        }
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -275,17 +280,22 @@ else if ($action === "getCart") {
 
 // UPDATE CART ITEM (PUT)
 else if ($action === "updateItem") {
-    $headers = getallheaders();
-    $token = $headers['X-CSRF-Token'] ?? '';
+    $userId = $_SESSION['userID'] ?? null;
 
-    if (!$token || !isset($_SESSION['csrf_token'])) {
-        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
-        exit();
-    }
+    if ($userId) {
+        // Logged-in users must have valid CSRF token
+        $headers = getallheaders();
+        $token = $headers['X-CSRF-Token'] ?? '';
 
-    if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
-        exit();
+        if (!$token || !isset($_SESSION['csrf_token'])) {
+            echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+            exit();
+        }
+
+        if (!hash_equals($_SESSION['csrf_token'], $token)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit();
+        }
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -400,17 +410,22 @@ else if ($action === "updateItem") {
 
 // DELETE CART ITEM (DELETE)
 else if ($action === "deleteItem") {
-    $headers = getallheaders();
-    $token = $headers['X-CSRF-Token'] ?? '';
+    $userId = $_SESSION['userID'] ?? null;
 
-    if (!$token || !isset($_SESSION['csrf_token'])) {
-        echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
-        exit();
-    }
+    if ($userId) {
+        // Logged-in users must have valid CSRF token
+        $headers = getallheaders();
+        $token = $headers['X-CSRF-Token'] ?? '';
 
-    if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
-        exit();
+        if (!$token || !isset($_SESSION['csrf_token'])) {
+            echo json_encode(['success' => false, 'error' => 'CSRF token missing']);
+            exit();
+        }
+
+        if (!hash_equals($_SESSION['csrf_token'], $token)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit();
+        }
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -432,7 +447,112 @@ else if ($action === "deleteItem") {
 }
 
 
-// Checkout
+// GET CHECKOUT ITEMS (Processing order)
+else if ($action === "getCheckoutItems") {
+    $sessionId = session_id();
+    $userId = $_SESSION['userID'] ?? null;
+
+    // === Existing checkout items code remains untouched ===
+    $stmt = $conn->prepare("
+            SELECT 
+                i.itemID,
+                i.qty,
+                i.netPrice,
+                v.varID,
+                v.name AS variationName,
+                v.salePrice,
+                v.stock,
+                v.img AS variationImg,
+                p.productID,
+                p.productName,
+                s.name AS sellerName
+            FROM items i
+            JOIN orders o ON i.orderID = o.orderID
+            JOIN variations v ON i.varID = v.varID
+            JOIN products p ON v.productID = p.productID
+            JOIN sellers s ON p.sellerID = s.sellerID
+            WHERE o.userID = ? AND o.status = 'Processing'
+            ORDER BY s.name ASC, p.productName ASC
+        ");
+    $stmt->bind_param("i", $userId);
+
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $checkoutItems = [];
+
+    while ($row = $res->fetch_assoc()) {
+        $varStmt = $conn->prepare("SELECT varID, name, img, rfrPrice, salePrice, stock FROM variations WHERE productID = ?");
+        $varStmt->bind_param("i", $row['productID']);
+        $varStmt->execute();
+        $varRes = $varStmt->get_result();
+        $variations = [];
+        $chosenVarNetPrice = 0;
+        $chosenVarOriPrice = 0;
+
+        while ($v = $varRes->fetch_assoc()) {
+            $variations[] = [
+                'varId' => (int)$v['varID'],
+                'name' => $v['name'],
+                'image' => $v['img'],
+                'oriPrice' => (float)$v['rfrPrice'],
+                'price' => (float)$v['salePrice'],
+                'stock' => (int)$v['stock']
+            ];
+
+            if ($v['varID'] === $row['varID']) {
+                $chosenVarNetPrice = (float)$v['salePrice'];
+                $chosenVarOriPrice = (float)$v['rfrPrice'];
+            }
+        }
+
+        $checkoutItems[] = [
+            'itemID' => (int)$row['itemID'],
+            'qty' => (int)$row['qty'],
+            'oriPrice' => $chosenVarOriPrice,
+            'netPrice' => $chosenVarNetPrice,
+            'varID' => (int)$row['varID'],
+            'variationName' => $row['variationName'],
+            'variationImg' => $row['variationImg'],
+            'productID' => (int)$row['productID'],
+            'productName' => $row['productName'],
+            'sellerName' => $row['sellerName'],
+            'variations' => $variations
+        ];
+    }
+
+    // === NEW: fetch pending transactions ===
+    $txnStmt = $conn->prepare("
+        SELECT t.transactionID, t.orderID, t.subtotal, t.product_discount, t.voucher_discount, t.totalPrice, t.status, t.payment_method
+        FROM `transaction` t
+        JOIN `orders` o ON t.orderID = o.orderID
+        WHERE o.userID = ? AND t.status = 'Pending'
+        ORDER BY t.transactionID DESC
+    ");
+    $txnStmt->bind_param("i", $userId);
+    $txnStmt->execute();
+    $txnRes = $txnStmt->get_result();
+    $pendingTransactions = [];
+
+    while ($txn = $txnRes->fetch_assoc()) {
+        $pendingTransactions[] = [
+            'transactionID' => (int)$txn['transactionID'],
+            'orderID' => (int)$txn['orderID'],
+            'subtotal' => (float)$txn['subtotal'],
+            'product_discount' => (float)$txn['product_discount'],
+            'voucher_discount' => (float)$txn['voucher_discount'],
+            'totalPrice' => (float)$txn['totalPrice'],
+            'status' => $txn['status'],
+            'payment_method' => $txn['payment_method']
+        ];
+    }
+
+    echo json_encode([
+        'success' => true,
+        'items' => $checkoutItems,
+        'pendingTransactions' => $pendingTransactions
+    ]);
+    exit();
+}
 
 
 header('Content-Type: application/json');

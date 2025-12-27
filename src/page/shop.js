@@ -207,6 +207,16 @@ function Shop() {
             })
             .catch(err => console.error(err));
     }
+    
+    React.useEffect(() => {
+        if (!successMsg) return;
+
+        const timer = setTimeout(() => {
+            setSuccessMsg('');
+        }, 1500); // 3 seconds
+
+        return () => clearTimeout(timer);
+    }, [successMsg]);
 
     // Add to cart
     async function handleAddToCart() {
@@ -217,8 +227,7 @@ function Shop() {
             variationId: activeVar.varId,
             quantity
         };
-
-        console.log(payload);
+        console.log("HHHHHHHHHHHHHH"+window.csrfToken)
 
         try {
             const res = await fetch('/earth-hero/src/backend/cart.php?action=addCart', {
@@ -265,18 +274,7 @@ function Shop() {
             console.error('Update failed', err);
         }
     }
-
-    
-
-    React.useEffect(() => {
-        if (!successMsg) return;
-
-        const timer = setTimeout(() => {
-            setSuccessMsg('');
-        }, 1500); // 3 seconds
-
-        return () => clearTimeout(timer);
-    }, [successMsg]);
+    console.log("HHHHHHHHHHHHHH"+window.csrfToken)
 
 
     // Conditional render (product list/ product details)

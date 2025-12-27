@@ -6,15 +6,6 @@ header('Content-Type: application/json');
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// ACTION: GET GUEST TOKEN
-if ($action === "getGuestToken") {
-    if (!isset($_SESSION['guestToken'])) {
-        // Generate a random token
-        $_SESSION['guestToken'] = bin2hex(random_bytes(16)); // 32-char hex token
-    }
-    echo json_encode(['success' => true, 'token' => $_SESSION['guestToken']]);
-    exit();
-}
 
 // Check if user is logged in
 if (!isset($_SESSION['email'])) {
@@ -81,7 +72,7 @@ if ($action === 'updateUser') {
         echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
         exit();
     }
-    
+
     $data = json_decode(file_get_contents("php://input"), true);
     
     $csrfHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
@@ -212,6 +203,49 @@ if ($action === "getVouchers") {
     echo json_encode([
         "success" => true,
         "vouchers" => $vouchers
+    ]);
+    exit;
+}
+
+// ACTION: GET DEFAULT ADDRESS (GET)
+else if ($action === "getDefaultAddress") {
+    header('Content-Type: application/json');
+
+    if (!isset($_SESSION['email'])) {
+        echo json_encode(['success' => true, 'default_address' => false]);
+        exit;
+    }
+
+    $email = $_SESSION['email'];
+
+    // Get userID
+    $stmt = $conn->prepare("SELECT userID FROM users WHERE email=?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $user = $res->fetch_assoc();
+    $stmt->close();
+
+    if (!$user) {
+        echo json_encode(['success' => true, 'default_address' => false]);
+        exit;
+    }
+
+    $userID = $user['userID'];
+
+    // Fetch default shipping address
+    $stmt2 = $conn->prepare("SELECT recipient, address, postcode, city, state, country, phoneCode, contact 
+                             FROM shippingdetails 
+                             WHERE userID=? AND is_default=1 LIMIT 1");
+    $stmt2->bind_param("i", $userID);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+    $default_address = $result2->fetch_assoc();
+    $stmt2->close();
+
+    echo json_encode([
+        'success' => true,
+        'default_address' => $default_address ?: false
     ]);
     exit;
 }

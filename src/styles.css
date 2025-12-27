@@ -1678,7 +1678,7 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     border: none;
 }
 
-.summary-row p {
+.summary-row p, .total-item {
     margin: 0;
 }
 
@@ -1711,26 +1711,219 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     gap: 1rem;
 }
 
-.checkout-content {
+.checkout-form {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 2rem;
+    padding: 2rem 0rem;
+    align-items: flex-start;
 }
 
-.checkout-form {
+.checkout-details {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.checkout-form label {
-    font-size: 2rem;
-    font-weight: 500;
+.shipping-details, .delivery-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 45vw;
 }
+.title-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    color: #896A58;
+    align-items: baseline;
+    
+}
+
+.details-title {
+    color: #896A58;
+}
+
+.details-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.options-wrapper, .button-wrapper {
+    border: 1px solid #896A58;
+    border-radius: 4px;
+    text-align: center;
+    background: none;
+    color: #896A58;
+}
+
+.options-wrapper {
+    width: 20%;
+    padding: 0.5rem 1rem;
+}
+
+.options-wrapper.active {
+    background-color: #6E584A;
+    color: white;
+}
+.button-wrapper {
+    padding: 0.8rem 2rem;
+}
+
+.details-col, .item-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.details-date {
+    width: 20%;
+    margin: 1rem 0;
+}
+
+.details-date input {
+    padding: 0.5rem 1rem;
+}
+
+.shipping-input {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.shipping-input-field, .period-input {
+    background: none;
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #896A58;
+}
+
+.location-input {
+    width: 50%;
+}
+
+.shipping-phone-code {
+    padding: 0.8rem 1rem;
+    border-radius: 4px 0px 0px 4px;
+    width: 80px;
+    border-color: #896A58;
+}
+
+.shipping-contact {
+    border-radius: 0px 4px 4px 0px;
+}
+
+
 .payment-summary {
     box-shadow: 0px 2px 4px -2px rgba(0,0,0,0.75);
-    border-radius:8px;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
+
+.expected-arrival {
+    background-color: #896a587d;
+    color: #896A58;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    max-width: 50%;
+    font-weight: bold;
+}
+
+.checkout-img {
+    height: 120px;
+    width: 120px;
+}
+
+.item-details-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    font-weight: normal;
+}
+
+.item-qty-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.item-var {
+    font-size: 0.8rem;
+    background-color: #567257;
+    border-radius: 4px;
+    color: white;
+    padding: 0.5rem;
+    max-width: 20%;
+}
+
+.item-col {
+    margin-left: 1rem;
+}
+
+.total-item {
+    text-align: right;
+}
+
+.product-subscription {
+    position: relative;
+}
+
+.unlock-overlay {
+    position: absolute;
+    background-color: #896a5875;
+    bottom: 20%;   
+    left: 5%;  
+    background-color: rgba(137, 106, 88, 0.45); 
+    z-index: 99;
+    display: flex;          
+    justify-content: center; 
+    align-items: center;
+    padding: 3rem 5rem; 
+    flex-direction: column;
+}
+
+.confirm-btn {
+    background-color: #6E584A;
+}
+.cancel-btn {
+    background-color: #896a5893;
+}
+
+.overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay .loader {
+    background: none;
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    font-size: 1.5rem;
+}
+
+.success-overlay .success-box {
+    background: #fff;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.success-overlay .success-box button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {
     body {

@@ -87,14 +87,26 @@ function CartPage() {
         if (!nextVar) return;
         if (nextQty < 1) return;
 
+        // Optimistically update local state
+        const prevCartItems = [...cartItems]; // backup in case of failure
+        setCartItems(prev =>
+            prev.map(i =>
+                i.itemID === itemId
+                    ? { ...i, qty: nextQty, variationName: nextVariationName }
+                    : i
+            )
+        );
+
         try {
             const res = await fetch(
                 '/earth-hero/src/backend/cart.php?action=updateItem',
                 {
                     method: 'POST',
                     credentials: 'include',
-                    headers: { 'Content-Type': 'application/json', 
-                        'X-CSRF-Token': window.csrfToken },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': window.csrfToken
+                    },
                     body: JSON.stringify({
                         itemID: itemId,
                         varID: nextVar.varId,
@@ -104,15 +116,16 @@ function CartPage() {
             );
 
             const data = await res.json();
-            console.log(data);
+
             if (!data.success) {
+                // Revert state if backend fails
+                setCartItems(prevCartItems);
                 setErrorMsg('Update failed: ' + data.error);
-                return;
             } 
-            // reload since backend may MERGE / DELETE items
-            loadCart();
         } catch (err) {
-            setErrorMsg(`Delete failed: ${err}`);
+            // Revert on network error
+            setCartItems(prevCartItems);
+            setErrorMsg(`Update failed: ${err}`);
         }
     };
 
@@ -493,3 +506,6 @@ function CartPage() {
 // ====== Rendering =======
 const cartContainer = document.getElementById('cart-container');
 ReactDOM.createRoot(cartContainer).render(e(CartPage));
+
+
+

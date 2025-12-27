@@ -2,6 +2,7 @@ const e = React.createElement;
 
 // ======= Function to sign up =======
 function RegisterForm({switchToLogin}) {
+    const [successMsg, setSuccessMsg] = React.useState('');
     const [name, setName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
@@ -85,7 +86,7 @@ function RegisterForm({switchToLogin}) {
 
         try {
             // Check email availability on server
-            const resCheck = await fetch(`http://localhost/earth-hero/src/backend/signUp.php?action=checkEmail&email=${encodeURIComponent(email)}`);
+            const resCheck = await fetch(`/earth-hero/src/backend/signUp.php?action=checkEmail&email=${encodeURIComponent(email)}`);
             const dataCheck = await resCheck.json();
 
             if (dataCheck.exists) {
@@ -96,7 +97,7 @@ function RegisterForm({switchToLogin}) {
             }
 
             // if email is available, sign up account to backend
-            const resRegister = await fetch("http://localhost/earth-hero/src/backend/signUp.php?action=register", {
+            const resRegister = await fetch("/earth-hero/src/backend/signUp.php?action=register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include", // REQUIRED for session cookie
@@ -105,8 +106,8 @@ function RegisterForm({switchToLogin}) {
             const dataRegister = await resRegister.json();
 
             if (dataRegister.success) {
-                console.log("Sucess register");
-                alert(`User ${dataRegister.name} registered!`);
+                setSuccessMsg("Register successfully! Please login now.");
+
                 // Save token in memory
                 window.csrfToken = dataRegister.csrf_token;
                 console.log(dataRegister);
@@ -123,8 +124,24 @@ function RegisterForm({switchToLogin}) {
         }
     }
 
+    React.useEffect(() => {
+        if (!successMsg) return;
+
+        const timer = setTimeout(() => {
+            setSuccessMsg('');
+            switchToLogin();
+        }, 1500); // 3 seconds
+
+        return () => clearTimeout(timer);
+    }, [successMsg]);
+
     // return sign Up Form
     return e('form', { onSubmit: handleSubmit, className: "register-form"  },
+        // Success overlay
+        successMsg && e(SuccessOverlay, {
+            message: successMsg,
+            onClose: () => setSuccessMsg('')
+        }),
         e('div', { className: 'form-title' }, 'Sign up New Account'),
 
         // Email
@@ -303,7 +320,7 @@ function LoginForm({switchToSignUp}) {
         console.log("JSON SENT →", JSON.stringify({ email, password, role }, null, 2));
 
         try {
-            const res = await fetch("http://localhost/earth-hero/src/backend/login.php?action=login", {
+            const res = await fetch("/earth-hero/src/backend/login.php?action=login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -390,7 +407,7 @@ function LoginForm({switchToSignUp}) {
 
 // ======= Render Register Page =======
 function RegisterPage() {
-    const [page, setPage] = React.useState('signup'); // default
+    const [page, setPage] = React.useState('login'); // default
     const [overlayVisible, setOverlayVisible] = React.useState(false);
     const [overlayType, setOverlayType] = React.useState('');
 
@@ -438,7 +455,6 @@ function RegisterPage() {
 
 // Render disclaimer
 function Disclaimer({page, openOverlay}) {
-    const isSignup = page === 'signup';
 
     return e('div', { className: 'disclaimer' },
         e('p', null,
