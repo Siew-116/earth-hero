@@ -104,12 +104,12 @@ function PageHeader() {
         e('div', { className: 'nav-container'},
         e('nav', null,
             e('a', { className: 'nav-btn', href: "./index.html" }, 'Home'),
-            e('a', { className: 'nav-btn', href: "./shop.html", }, 'Shop Now'),
+            e('a', { className: 'nav-btn', href: "./shop.html" }, 'Shop Now'),
             e('a', { className: 'nav-btn', href: '#'}, 'About'),
             e('a', { className: 'nav-btn', href: '#' }, 'Pricing'),
             e('a', { className: 'nav-btn', href: '#' }, 'Contact'),
             e('a', { className: 'nav-btn', href: '#' }, 'Join Us'),
-            e('a', { className: 'nav-btn', href: '#' }, 'My Purchase'),
+            e('a', { className: 'nav-btn', href: "./purchase.html" }, 'My Purchase'),
             e("button", {className: 'cart-btn', onClick: () => { window.location.href = './cart.html'; } },
                 e('i', { className: 'fa fa-cart-shopping'}),
                     cartCount > 0 && e('span', {className: 'cart-count-badge'}, cartCount)
@@ -135,7 +135,7 @@ function PageHeader() {
             e('a', { className: 'side-link', href: '#' }, 'Pricing'),
             e('a', { className: 'side-link', href: '#' }, 'Contact'),
             e('a', { className: 'side-link', href: '#' }, 'Join Us'),
-            e('a', { className: 'side-link', href: '#' }, 'My Purchase'),
+            e('a', { className: 'side-link', href: "./purchase.html" }, 'My Purchase'),
             e('a', { className: 'side-link', href: './cart.html' }, `Cart (${cartCount})`),
             e('button', { className: 'side-link', onClick: checkLogin}, 'Account')
         ),

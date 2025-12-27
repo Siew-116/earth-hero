@@ -1923,6 +1923,9 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     padding: 0.5rem 1rem;
 }
 
+.unlock-overlay p {
+    text-align: center;
+}
 
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {
@@ -2184,6 +2187,17 @@ input[type="email"]:disabled, input[type="password"]:disabled,
         padding: 0;
         padding-bottom: 1rem;
    }
-   
+
+   .checkout-form, .product-subscription .details-row {
+        flex-direction: column;
+   }
+
+   .shipping-details input, .shipping-details select, .options-wrapper {
+        width: 100%;
+        padding: 0.5rem;
+   }
+
+  
+
 }
 

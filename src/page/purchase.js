@@ -1,4 +1,4 @@
-function CartPage() {
+function PurchasePage() {
     // Load purchase history
     // Filter
     // Refund

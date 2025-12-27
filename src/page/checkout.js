@@ -319,6 +319,7 @@ function CheckoutPage() {
     console.log(shippingOption)
     console.log(paymentMethod)
     console.log(checkoutAmount);
+    
     return e('div', { className: 'checkout-container' },
         // Error overlay
         errorMsg && e(ErrorOverlay, {
