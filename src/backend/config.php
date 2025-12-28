@@ -25,10 +25,10 @@ session_set_cookie_params([
 session_start();
 
 // Database connection
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "earthhero";
+//$host =  // your host name
+//$user =  // db username
+//$pass =  // db password
+//$db   =  // database name
 
 $conn = new mysqli($host, $user, $pass, $db);
 

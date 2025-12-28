@@ -14,7 +14,6 @@ function CartPage() {
     const [vouchers, setVouchers] = React.useState([]);
     const [showVoucherOverlay, setShowVoucherOverlay] = React.useState(false);
     const [selectedVoucher, setSelectedVoucher] = React.useState(null);
-    console.log(window.csrfToken)
 
     // Get cart items from backend
     const loadCart = async () => {
@@ -61,8 +60,6 @@ function CartPage() {
 
                 const data = await res.json();
                 if (data.success) {
-                    console.log("Load vouchers");
-                    console.log(data.vouchers);
                     setVouchers(data.vouchers);
                 } else {
                     setErrorMsg(data.error);
@@ -122,6 +119,7 @@ function CartPage() {
                 setCartItems(prevCartItems);
                 setErrorMsg('Update failed: ' + data.error);
             } 
+            await loadCart();
         } catch (err) {
             // Revert on network error
             setCartItems(prevCartItems);
@@ -144,7 +142,6 @@ function CartPage() {
             );
 
             const data = await res.json();
-            console.log('Delete response:', data);
 
             if (!data.success) {
                 setErrorMsg('Delete failed: ' + data.error);
@@ -184,19 +181,7 @@ function CartPage() {
     };
 
     // Helper to check if a shop is fully selected
-    const isShopSelected = (sellerName) =>
-        groupedByShop[sellerName]?.every(item => item.selected);
-
-    React.useEffect(() => {
-    console.log(
-        'CURRENT SELECTION STATE:',
-        cartItems.map(i => ({
-            seller: i.sellerName,
-            id: i.itemID,
-            selected: i.selected
-        }))
-    );
-}, [cartItems]);
+    const isShopSelected = (sellerName) => groupedByShop[sellerName]?.every(item => item.selected);
 
     // Subtotal 
     const subtotal = selectedItems.reduce(
@@ -234,7 +219,7 @@ function CartPage() {
             const itemIDs = selectedItems.map(item => item.itemID);
 
             const res = await fetch(
-                'http://localhost/earth-hero/src/backend/transaction.php?action=checkout',
+                '/earth-hero/src/backend/transaction.php?action=checkout',
                 {
                     method: 'POST',
                     credentials: 'include',
@@ -247,7 +232,6 @@ function CartPage() {
             );
 
             const data = await res.json();
-            console.log('Checkout result:', data);
 
             if (!data.success) {
                 setErrorMsg('Checkout failed: ' + data.error);
@@ -257,12 +241,10 @@ function CartPage() {
             // Remove locally checked-out items from cart
             setCartItems(prev => prev.filter(i => !itemIDs.includes(i.itemID)));
 
-            // Optionally redirect to payment page
+            // redirect to payment page
             if (data.paymentURL) {
                 window.location.href = data.paymentURL;
-            } else {
-                alert('Checkout successful!');
-            }
+            } 
         } catch (err) {
             setErrorMsg(`Checkout failed: ${err}`);
         }
@@ -290,7 +272,7 @@ function CartPage() {
             vouchers.length === 0
                 ? e('p', { className: 'empty-text' }, 'No vouchers available')
                 : vouchers.map(voucher =>
-                    e('div', { key: voucher.voucherID, className: 'voucher-row' }, // <-- key fixed here
+                    e('div', { key: voucher.voucherID, className: 'voucher-row' }, 
                         // Voucher card
                         e('div', {
                             className: 'voucher-card',
@@ -416,7 +398,6 @@ function CartPage() {
                                     className: 'qty-btn',
                                     onClick: () => {
                                         if (item.qty >= (currentVar?.stock || 0)) {
-                                            console.log("Exceed");
                                             setErrorMsg("Sorry, we don't have enough stock!");
                                         } else {
                                             updateItem(item.itemID, { qty: item.qty + 1 });
@@ -488,7 +469,8 @@ function CartPage() {
                     className: 'checkout-btn',
                     onClick: () => {
                         if (!window.loggedIn) {
-                            window.location.href = '/earth-hero/src/register.html';
+                            setErrorMsg("Please login or sign up first to continue processing your order.")
+                            //window.location.href = '/earth-hero/src/register.html';
                             return;
                         } else {
                             window.location.href = '/earth-hero/src/checkout.html';

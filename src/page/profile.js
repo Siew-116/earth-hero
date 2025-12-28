@@ -24,6 +24,7 @@ function MyProfile() {
     const [phoneCode, setPhoneCode] = React.useState('');
     const [contactNumber, setContactNumber] = React.useState('');
 
+    // Validate user and fetch information
     React.useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -32,7 +33,6 @@ function MyProfile() {
                 });
                 const data = await res.json();
                 if (!data) return;
-                console.log(data);
                 const user = data.user || {};
                 window.csrfToken = data.csrf_token;
 
@@ -59,7 +59,6 @@ function MyProfile() {
         };
         fetchUser();
     }, []);
-
 
 
     // Update profile
@@ -288,7 +287,7 @@ function MyProfile() {
                             value: address,
                             onChange: e => setAddress(e.target.value)  
                         }),
-                        e('input', { type: 'text', className:'address-field', placeholder: 'Postcode', disabled: !isEditing, value: postcode, onChange: e => setPostcode(e.target.value) }),
+                        e('input', { type: 'number', className:'address-field', placeholder: 'Postcode', disabled: !isEditing, value: postcode, onChange: e => setPostcode(e.target.value) }),
 
                         // Country dropdown
                         e('select', { disabled: !isEditing, className:'address-field', value: country, onChange: handleCountryChange },

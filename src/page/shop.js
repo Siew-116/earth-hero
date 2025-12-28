@@ -41,12 +41,6 @@ function Shop() {
 
         fetchUser();
     }, []);
-
-
-    React.useEffect(() => {
-        console.log('Selected variation changed:', activeVar);
-    }, [activeVar]);
-
     
     // Track selected product Id to fetch details
     React.useEffect(() => {
@@ -59,14 +53,11 @@ function Shop() {
                 return;
             }
 
-            console.log(productId);
-
             try {
                 const res = await fetch(
                     `/earth-hero/src/backend/products.php?action=viewProduct&productId=${productId}`
                 );
                 const data = await res.json();
-                console.log(data);
                 setSelectedProduct(data);
             } catch (err) {
                 console.error(err);
@@ -155,8 +146,6 @@ function Shop() {
             }
         }
 
-        console.log(params.toString());
-
         const url = `${window.location.pathname}?action=${endpoint}&${params.toString()}`;
         window.history.pushState({}, '', url);
 
@@ -203,7 +192,6 @@ function Shop() {
                     console.error('JSON parse error', err, text);
                 }
                 setProducts(data);
-                console.log(data);
             })
             .catch(err => console.error(err));
     }
@@ -227,7 +215,6 @@ function Shop() {
             variationId: activeVar.varId,
             quantity
         };
-        console.log("HHHHHHHHHHHHHH"+window.csrfToken)
 
         try {
             const res = await fetch('/earth-hero/src/backend/cart.php?action=addCart', {
@@ -244,26 +231,7 @@ function Shop() {
 
             if (data.success) {
                 setSuccessMsg('Added to cart successfully');
-                // Update activeVar stock
-                /*setActiveVar(prev => prev ? { 
-                    ...prev, 
-                    stock: prev.stock - quantity,
-                    sold: prev.sold + quantity
-                } : prev);
-        
-                // Update stock inside selectedProduct.variations
-                setSelectedProduct(prev => {
-                    if (!prev) return prev;
-
-                    const updatedVariations = prev.variations.map(v => 
-                        v.varId === activeVar.varId 
-                        ? { ...v, stock: v.stock - quantity, sold: v.sold + quantity } 
-                        : v
-                    );
-
-                    return { ...prev, variations: updatedVariations };
-                });*/
-                console.log(data);
+                // Update to cart page
                 const quantity = payload.quantity ?? 0; 
                 const event = new CustomEvent('cartUpdated', { detail: { quantity } });
                 window.dispatchEvent(event);
@@ -274,9 +242,7 @@ function Shop() {
             console.error('Update failed', err);
         }
     }
-    console.log("HHHHHHHHHHHHHH"+window.csrfToken)
-
-
+ 
     // Conditional render (product list/ product details)
     return e('div', { className: 'shop-container' },
         successMsg && e(SuccessOverlay, {
@@ -426,7 +392,7 @@ function Shop() {
                     // Tab content
                     e('div', { className: 'p-info-content' },
                         activeTab === 'description' && e('p', null, selectedProduct.description),
-                        activeTab === 'eco' && e('p', null, "THis i s made by eco dfirned;ly porudct"),
+                        activeTab === 'eco' && e('p', {className:'eco-desc'}, "Our product is thoughtfully designed with the environment in mind. Made from sustainable and biodegradable materials, it reduces waste and minimizes carbon footprint while offering the same durability and functionality as conventional alternatives. By choosing this product, you contribute to a cleaner planet, support responsible resource use, and help promote a circular economy that benefits both people and nature"),
                         activeTab === 'reviews' && e('div', null,
                             e('div', {className: 'review-header'},
                                 e('p', {className: 'review-rate'}, '4.2 /5'),
@@ -442,8 +408,7 @@ function Shop() {
                                     e('button', {className: 'review-btn'}, 'With Media' ),
                                     e('select', { 
                                         className: 'review-dropdown',
-                                        value: 'Variation 1',
-                                        onChange: (event) => console.log(event.target.value)
+                                        value: 'Variation 1'
                                     },
                                         e('option', { value: '' }, 'Choose variation'),
                                         e('option', { value: 'Variation 1' }, 'Variation 1'),

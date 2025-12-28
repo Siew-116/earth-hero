@@ -77,7 +77,6 @@ function CheckoutPage() {
         .then(res => res.json())
         .then(data => {
             if (!data.active) {
-                console.log(data);
                 window.location.replace("/earth-hero/src/cart.html");
             }
         });
@@ -92,7 +91,7 @@ function CheckoutPage() {
 
                 navigator.sendBeacon(
                     "/earth-hero/src/backend/transaction.php?action=failCheckout",
-                    JSON.stringify({ csrfToken: window.csrfToken })
+                    JSON.stringify({ "csrfToken": window.csrfToken })
                 );
             }
         };
@@ -208,7 +207,7 @@ function CheckoutPage() {
 
     // Get checkout items
     React.useEffect(() => {
-        fetch("http://localhost/earth-hero/src/backend/cart.php?action=getCheckoutItems", {
+        fetch("/earth-hero/src/backend/cart.php?action=getCheckoutItems", {
             credentials: "include"
         })
         .then(res => res.json())
@@ -216,7 +215,6 @@ function CheckoutPage() {
             if (data.success) {
                 setCheckoutItems(data.items);
                 setCheckoutAmount(data.pendingTransactions);
-                console.log(data)
             } else {
                 console.error("Failed to load checkout items", data.error);
             }
@@ -227,7 +225,7 @@ function CheckoutPage() {
 
     // Revert checkout
     function handleCancelCheckout() {
-        fetch("http://localhost/earth-hero/src/backend/transaction.php?action=failCheckout", {
+        fetch("http://arth-hero/src/backend/transaction.php?action=failCheckout", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -240,12 +238,12 @@ function CheckoutPage() {
             if (data.success) {
                 window.location.href = "/earth-hero/src/cart.html";
             } else {
-                alert("Failed to revert checkout: " + data.error);
+                setErrorMsg("Failed to revert checkout: " + data.error);
             }
         })
         .catch(err => {
             console.error(err);
-            alert("An error occurred while reverting checkout.");
+            setErrorMsg("An error occurred while reverting checkout.");
         });
     }
 
@@ -290,9 +288,9 @@ function CheckoutPage() {
                             phoneCode,
                             contact: contactNumber
                         },
-                        shippingOption,       // 'self', 'sea', or 'air'
-                        paymentMethod,        // 'Paypal', 'Visa', etc.
-                        totalPrice: total     // total including delivery fee
+                        shippingOption,       
+                        paymentMethod,        
+                        totalPrice: total     
                     })
                 }
             );
@@ -315,10 +313,6 @@ function CheckoutPage() {
     }
     
     const totalItems = checkoutItems.reduce((acc, i) => acc + i.qty, 0);
-
-    console.log(shippingOption)
-    console.log(paymentMethod)
-    console.log(checkoutAmount);
     
     return e('div', { className: 'checkout-container' },
         // Error overlay
@@ -393,7 +387,7 @@ function CheckoutPage() {
                             value: address,
                             onChange: e => setAddress(e.target.value)  
                         }),
-                        e('input', { type: 'text', className:'shipping-input-field', placeholder: 'Postcode', value: postcode, onChange: e => setPostcode(e.target.value) }),
+                        e('input', { type: 'number', className:'shipping-input-field', placeholder: 'Postcode', value: postcode, onChange: e => setPostcode(e.target.value) }),
 
                         // Country dropdown
                         e('select', {className:'shipping-input-field location-input', value: country, onChange: handleCountryChange },
@@ -573,7 +567,7 @@ function CheckoutPage() {
                                         })
                                     ),
                                     e('div', { className: 'item-col' },
-                                        e('p', { className: 'item-name' }, item.productName),
+                                        e('p', { className: 'c-item-name' }, item.productName),
                                         e('p', { className: 'item-var' }, item.variationName)
                                     ),
                                     e('div', { className: 'item-qty-price' },

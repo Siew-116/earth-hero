@@ -50,7 +50,7 @@ if ($action === "login") {
     // If user not found
     if (!$stmt->fetch()) {
         http_response_code(401);
-        echo json_encode(["success" => false, "message" => "Account not exsited. Please sign up."]);
+        echo json_encode(["success" => false, "message" => "Account not existed. Please sign up."]);
         exit;
     }
     $stmt->close();

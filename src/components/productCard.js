@@ -5,10 +5,10 @@ function ProductCard({ product }) {
     const [sales, setSales] = React.useState(product.sales);
 
     async function handleAddToCart() {
-        // ALL variations out of stock → do nothing
+        // ALL variations out of stock, do nothing
         if (product.allOutOfStock) return;
 
-        // Cover variation out of stock → redirect to details
+        // Cover variation out of stock, redirect to details
         if (stock <= 0) {
             window.location.href =
                 `/earth-hero/src/shop.html?action=viewProduct&productId=${product.id}`;
@@ -36,14 +36,9 @@ function ProductCard({ product }) {
             const data = await res.json();
 
             if (data.success) {
-                // update UI immediately
-                // setStock(prev => prev - 1);
-                // setSales(prev => prev + 1);
-
                 window.dispatchEvent(
                     new CustomEvent('cartUpdated', { detail: { quantity: 1 } })
                 );
-
                 setSuccessMsg('Added to cart successfully');
             }
         } catch (err) {
@@ -51,6 +46,7 @@ function ProductCard({ product }) {
         }
     }
 
+    // Control stock
     let buttonText = 'Add to Cart';
     let buttonClass = 'button';
     let buttonDisabled = false;
@@ -63,6 +59,7 @@ function ProductCard({ product }) {
         buttonText = 'Choose Options';
     }
 
+    // Timer for success msg
     React.useEffect(() => {
         if (!successMsg) return;
 
@@ -72,7 +69,8 @@ function ProductCard({ product }) {
 
         return () => clearTimeout(timer);
     }, [successMsg]);
-    
+
+    // Render
     const e = React.createElement;
     return e('div', { className: 'product-container' },
         successMsg && e(SuccessOverlay, {

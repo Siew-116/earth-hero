@@ -69,7 +69,6 @@ function RegisterForm({switchToLogin}) {
     // Handle submit
     async function handleSubmit(e) {
         e.preventDefault();
-        console.log("Submitting form");
 
         // Run validations
         const newErrors = {
@@ -80,7 +79,7 @@ function RegisterForm({switchToLogin}) {
             role: validateRole(role)
         };
         setErrors(newErrors);
-        console.log(newErrors);
+
         const hasError = Object.values(newErrors).some(err => err);
         if (hasError) return; // stop submission if any error
 
@@ -90,7 +89,6 @@ function RegisterForm({switchToLogin}) {
             const dataCheck = await resCheck.json();
 
             if (dataCheck.exists) {
-                console.log("Stop: existing account");
                 // Update error state
                 setErrors(prev => ({ ...prev, email: 'Account already exists. Please log in or try again.' }));
                 return; // stop process
@@ -110,7 +108,7 @@ function RegisterForm({switchToLogin}) {
 
                 // Save token in memory
                 window.csrfToken = dataRegister.csrf_token;
-                console.log(dataRegister);
+
                 // reset the input field if success
                 setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setRole('');
                 // reset error states
@@ -301,9 +299,6 @@ function LoginForm({switchToSignUp}) {
 
     // Send login credentials to server
     async function handleSubmit(e) {
-        console.log(email);
-        console.log(role);
-        console.log(password);
         e.preventDefault();
 
         // Run validations
@@ -312,12 +307,8 @@ function LoginForm({switchToSignUp}) {
             role: validateRole(role)
         };
         setErrors(newErrors);
-        console.log(newErrors);
         const hasError = Object.values(newErrors).some(err => err);
         if (hasError) return;
-
-        console.log("Logging");
-        console.log("JSON SENT →", JSON.stringify({ email, password, role }, null, 2));
 
         try {
             const res = await fetch("/earth-hero/src/backend/login.php?action=login", {
@@ -413,7 +404,7 @@ function RegisterPage() {
 
     // openOverlay
     function openOverlay(type) {
-        setOverlayType(type);  // store type
+        setOverlayType(type);  
         setOverlayVisible(true);
     }
 

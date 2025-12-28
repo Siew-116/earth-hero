@@ -350,10 +350,6 @@ if ($action === "viewProduct" && !empty($_GET['productId'])) {
     exit();
 }
 
-
-
-// Get hashtags (GET)
-
 header('Content-Type: application/json');
 echo json_encode($products);
 exit;

@@ -1,20 +1,14 @@
 <?php
 require_once 'config.php'; // session_start() is here
-
 header('Content-Type: application/json');
 
-
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
-
 
 // Check if user is logged in
 if (!isset($_SESSION['email'])) {
     echo json_encode(['loggedIn' => false]);
     exit;
 }
-
-
-
 
 // ACTION: GET USER STATUS AND INFO (GET)
 if ($action === "getUser") {
@@ -140,8 +134,15 @@ if ($action === 'updateUser') {
         $stmt2->close();
     } else {
         // Insert new default address
-        $stmt2 = $conn->prepare("INSERT INTO shippingdetails (userID, recipient, address, postcode, city, state, country, phoneCode=?, contact, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, 1)");
-        $stmt2->bind_param("issssssss", $userID, $recipient, $address, $postcode, $city, $state, $country, $phoneCode, $contact);
+        $stmt2 = $conn->prepare(
+            "INSERT INTO shippingdetails 
+            (userID, recipient, address, postcode, city, state, country, phoneCode, contact, is_default) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)"
+        );
+        $stmt2->bind_param(
+            "issssssss", 
+            $userID, $recipient, $address, $postcode, $city, $state, $country, $phoneCode, $contact
+        );
         $stmt2->execute();
         $stmt2->close();
     }

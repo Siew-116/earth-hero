@@ -12,7 +12,7 @@ function SearchBar() {
         const isShopPage = currentPath.endsWith('shop.html');
 
         if (isShopPage) {
-            // Already on shop.html → update URL param
+            // Already on shop.html, update URL param
             const url = new URL(window.location);
             url.searchParams.set('search', keyword);
             if (!url.searchParams.get('category')) {
@@ -25,14 +25,13 @@ function SearchBar() {
             window.dispatchEvent(event);
 
         } else {
-            // On another page → redirect to shop.html with params
+            // On another page, redirect to shop.html with params
             const params = new URLSearchParams();
             params.set('category', 'All');
             if (keyword) params.set('search', keyword);
             window.location.href = `/earth-hero/src/shop.html?${params.toString()}`;
         }
     }
-
 
     return e("form", { className: "search-bar", onSubmit: handleSubmit },
         e('div', { className: 'left-wrapper' },

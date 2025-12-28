@@ -7,7 +7,6 @@ function renderHomePage() {
         fetch(url)
             .then(res => res.json()) // parse JSON directly
             .then(products => {
-                console.log(products);
                 // Render even if products array is empty
                 ReactDOM.createRoot(container).render(e(ProductList, { products }));
             })

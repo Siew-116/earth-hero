@@ -106,16 +106,6 @@ if ($action === "addCart") {
     $stmt->bind_param("ii", $qty, $orderId);
     $stmt->execute();
 
-    // Decrease stock of the variation
-    //$stmt = $conn->prepare("UPDATE variations SET stock = stock - ? WHERE varID = ? AND stock >= ?");
-    //$stmt->bind_param("iii", $qty, $varId, $qty);
-    //$stmt->execute();
-
-    // Increase sold count in the same variation (if you track sold per variation)
-    //$stmt = $conn->prepare("UPDATE variations SET sold = sold + ? WHERE varID = ?");
-    //$stmt->bind_param("ii", $qty, $varId);
-    //$stmt->execute();
-
     echo json_encode([
         'success' => true,
         'orderID' => $orderId,
@@ -452,7 +442,6 @@ else if ($action === "getCheckoutItems") {
     $sessionId = session_id();
     $userId = $_SESSION['userID'] ?? null;
 
-    // === Existing checkout items code remains untouched ===
     $stmt = $conn->prepare("
             SELECT 
                 i.itemID,
@@ -520,7 +509,7 @@ else if ($action === "getCheckoutItems") {
         ];
     }
 
-    // === NEW: fetch pending transactions ===
+    // === Fetch pending transactions ===
     $txnStmt = $conn->prepare("
         SELECT t.transactionID, t.orderID, t.subtotal, t.product_discount, t.voucher_discount, t.totalPrice, t.status, t.payment_method
         FROM `transaction` t

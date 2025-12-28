@@ -9,11 +9,11 @@ function PageHeader() {
         const loadSession = async () => {
             try {
                 // 1️⃣ Try to get logged-in user info
-                const resUser = await fetch('http://localhost/earth-hero/src/backend/users.php?action=getUser', {
+                const resUser = await fetch('/earth-hero/src/backend/users.php?action=getUser', {
                     credentials: 'include'
                 });
                 const dataUser = await resUser.json();
-
+            
                 if (dataUser.loggedIn) {
                     // Logged-in user
                     setUser({
@@ -23,10 +23,8 @@ function PageHeader() {
                     });
                     window.csrfToken = dataUser.csrf_token;
                     window.loggedIn = true;
-                    console.log("User logged in:", window.csrfToken);
                 } 
             } catch (err) {
-                console.error("Failed to init session:", err);
                 setUser({ loggedIn: false });
             }
         };
@@ -37,14 +35,12 @@ function PageHeader() {
     
     // Get cart count
     React.useEffect(() => {
-        fetch('http://localhost/earth-hero/src/backend/cart.php?action=getCartCount', {
+        fetch('/earth-hero/src/backend/cart.php?action=getCartCount', {
             credentials: 'include'
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                console.log("Get cart count")
-                console.log(data);
                 setCartCount(data.totalItems);
             }
         })
@@ -53,7 +49,7 @@ function PageHeader() {
 
 
     function checkLogin() {
-        if (user.loggedIn) {
+        if (user.loggedIn && user.role === "User") {
             setOpenProfile(prev => !prev);
         } else {
             window.location.href = '/earth-hero/src/register.html';
@@ -61,29 +57,27 @@ function PageHeader() {
     }
     
     function handleLogout() {
-        fetch("http://localhost/earth-hero/src/backend/logout.php", {
+        fetch("/earth-hero/src/backend/logout.php", {
             method: "POST",
-            credentials: "include"  // important for session cookies
+            credentials: "include" 
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                console.log("Logged out successfully");
                 // update React state or redirect
-                window.location.href = "http://localhost/earth-hero/src/index.html"; 
+                window.location.href = "/earth-hero/src/index.html"; 
             }
         })
         .catch(err => console.error(err));
     }
     
     function goToSection(section) {
-        window.location.href = `http://localhost/earth-hero/src/profile.html?section=${section}`;
+        window.location.href = `/earth-hero/src/profile.html?section=${section}`;
     }
 
     // Listen from shop page add cart
     React.useEffect(() => {
         function handleCartUpdate(e) {
-            console.log('cartUpdated event received', e.detail.quantity);
             setCartCount(prev => prev + (e.detail.quantity || 0));
         }
 

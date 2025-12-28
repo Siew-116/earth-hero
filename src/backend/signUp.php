@@ -4,7 +4,6 @@ include 'config.php';
 
 $action = $_GET['action'] ?? '';
 
-
 // ACTION: CHECK EMAIL (GET)
 if ($action === 'checkEmail') {
     $email = $_GET['email'] ?? '';
@@ -18,8 +17,6 @@ if ($action === 'checkEmail') {
     $conn->close();
     exit;
 }
-
-
 
 // ACTION: REGISTER USER (POST)
 if ($action === 'register') {
