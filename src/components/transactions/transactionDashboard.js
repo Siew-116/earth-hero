@@ -270,12 +270,15 @@ let sortDirection = 'asc';
 function validateDateRange() {
   const fromDate = new Date(dateFrom.value);
   const toDate = new Date(dateTo.value);
-  
+
   if (fromDate > toDate) {
     alert('Error: "From" date cannot be later than "To" date');
-    // Reset to valid dates
     dateFrom.value = dateTo.value;
   }
+
+  // Calculate difference in days
+  const diffTime = toDate - fromDate; // difference in milliseconds
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // add 1 to include both days
 
   if (currentFilter === 'daily' && diffDays !== 1) {
     alert('Daily filter allows only one day. Adjusting "To" date to match "From" date.');
@@ -296,6 +299,7 @@ function validateDateRange() {
     dateTo.value = newTo.toISOString().slice(0, 10);
   }
 }
+
 
 function setFilter(type, btn) {
   currentFilter = type;

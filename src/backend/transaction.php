@@ -504,6 +504,7 @@ if ($action === "getPurchase") {
                 i.netPrice,
                 v.varID,
                 v.name AS variationName,
+                v.img AS variationImg,
                 p.productName
             FROM items i
             JOIN variations v ON i.varID = v.varID
@@ -519,6 +520,7 @@ if ($action === "getPurchase") {
             $items[] = [
                 'productName' => $item['productName'],
                 'variationName' => $item['variationName'],
+                'variationImg' => $item['variationImg'],
                 'varID' => (int)$item['varID'],
                 'qty' => (int)$item['qty'],
                 'price' => (float)$item['netPrice']

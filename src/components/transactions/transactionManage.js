@@ -456,7 +456,7 @@ function loadRevenueTrends() {
   .then(res => res.json())
   .then(res => {
     if (res.success && res.data && res.data.length > 0) {
-      console.log('Revenue trends response:', res);
+
       renderRevenueChart(res.data, res.group_type);
     } else {
       document.getElementById('revenueChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">No revenue data available</div>';
@@ -472,7 +472,7 @@ function loadRevenueTrends() {
 // RENDER REVENUE CHART WITH SMART LABELS
 // ============================================================
 function renderRevenueChart(data, groupType) {
-  console.log('Rendering chart - Group type:', groupType, 'Data:', data);
+
   
   if (!data || data.length === 0) {
     document.getElementById('revenueChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">No data available</div>';
@@ -503,7 +503,7 @@ function renderRevenueChart(data, groupType) {
   const maxRevenue = Math.max(...revenues);
   const minRevenue = Math.min(...revenues);
 
-  console.log('Max revenue:', maxRevenue, 'Min revenue:', minRevenue);
+ 
 
   // If all values are 0, show a message
   if (maxRevenue === 0) {
@@ -541,7 +541,7 @@ function renderRevenueChart(data, groupType) {
           label = month; // Show as "Jan 2024" instead of "Q1 2024"
         }
         
-        console.log(`${label}: RM ${revenue} -> ${heightRem.toFixed(2)}rem`);
+
         
         return `
           <div class="flex flex-col items-center gap-2 flex-1" style="max-width: 3.75rem;">

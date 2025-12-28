@@ -2032,6 +2032,10 @@ input[type="email"]:disabled, input[type="password"]:disabled,
     flex-direction: column;
     padding-right: 4rem;
 }
+
+.join-btn {
+    cursor: none;
+}
 /*Responsive design: MEDIUM OR TAB*/
 @media (max-width: 1000px) {
     body {

@@ -225,7 +225,7 @@ function CheckoutPage() {
 
     // Revert checkout
     function handleCancelCheckout() {
-        fetch("http://arth-hero/src/backend/transaction.php?action=failCheckout", {
+        fetch("/earth-hero/src/backend/transaction.php?action=failCheckout", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -528,7 +528,7 @@ function CheckoutPage() {
                 e('div', { className: 'unlock-overlay'},
                     e('div', {className: 'fa-solid fa-lock'}),
                     e('p', { className: 'word-text'},"Unlock Product Subscription feature now"),
-                    e('button', {className: 'button'}, "Join Member")
+                    e('button', {className: 'button join-btn disabled'}, "Join Member")
                 )                    
                 ),                
             ),  
