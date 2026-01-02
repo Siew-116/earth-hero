@@ -42,7 +42,7 @@ try {
 }
 
 /* =======================================================
-   GET TRANSACTIONS (UPDATED TO SUPPORT WEEKLY/MONTHLY)
+   GET TRANSACTIONS
 ======================================================= */
 function getTransactions($input) {
     global $conn;
@@ -121,7 +121,7 @@ function getTransactions($input) {
 }
 
 /* =======================================================
-   STATISTICS (FIXED: NOW USES DATE RANGE FROM INPUT)
+   STATISTICS 
 ======================================================= */
 function getStatistics($input) {
     global $conn;
@@ -235,7 +235,7 @@ function getStatisticsWithComparison($input) {
 }
 
 /* =======================================================
-   TRANSACTION DETAIL (UPDATED TO SUPPORT PERIODS)
+   TRANSACTION DETAIL 
 ======================================================= */
 function getTransactionDetail($input) {
     global $conn;

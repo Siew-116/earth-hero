@@ -13,6 +13,7 @@ if ($action === "getProducts") {
             p.productID,
             p.productName,
             p.cover_varID,
+            p.description,
             c.name AS category,
             v.img,
             v.salePrice,
@@ -41,10 +42,12 @@ if ($action === "getProducts") {
     }
 
     if (!empty($_GET['search'])) {
-        $sql .= " AND p.productName LIKE ?";
-        $params[] = "%" . $_GET['search'] . "%";
+        $sql .= " AND (p.productName LIKE ? OR p.description LIKE ?)";
+        $searchParam = "%" . $_GET['search'] . "%";
+        $params[] = $searchParam; // for productName
+        $params[] = $searchParam; // for description
     }
-
+    
     if (!empty($_GET['location'])) {
         $sql .= " AND s.location = ?";
         $params[] = $_GET['location'];
@@ -87,6 +90,7 @@ if ($action === "getProducts") {
             'id' => (int)$row['productID'],
             'name' => $row['productName'],
             'coverVarId' => $row['cover_varID'],
+            'description' => $row['description'],
             'category' => $row['category'],
             'image' => $row['img'],
             'price' => (float)$row['salePrice'],

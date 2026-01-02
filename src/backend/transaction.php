@@ -613,7 +613,7 @@ if ($action === "updateOrderStatus") {
     $conn->begin_transaction();
 
     try {
-        // 1️⃣ Update orders table (ensure user owns this order)
+        // Update orders table (ensure user owns this order)
         $stmt = $conn->prepare("
             UPDATE orders o
             JOIN `transaction` t ON o.orderID = t.orderID
@@ -627,7 +627,7 @@ if ($action === "updateOrderStatus") {
             throw new Exception("Order not found or not authorized");
         }
 
-        // 2️⃣ Update transaction status (ONLY for refund)
+        // Update transaction status (ONLY for refund)
         if ($transactionStatus !== null) {
             $stmt2 = $conn->prepare("
                 UPDATE `transaction`

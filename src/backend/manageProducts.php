@@ -523,14 +523,14 @@ if ($action === 'deleteProduct' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        // 1️⃣ NULL cover_varID (VERY IMPORTANT)
+        // NULL cover_varID (VERY IMPORTANT)
         $conn->query("
             UPDATE products
             SET cover_varID = NULL
             WHERE productID IN ($idList)
         ");
 
-        // 2️⃣ Get variation IDs
+        //  Get variation IDs
         $varIDs = [];
         $res = $conn->query("
             SELECT varID, img
@@ -547,7 +547,7 @@ if ($action === 'deleteProduct' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // 3️⃣ Delete items (child of variations)
+        // Delete items (child of variations)
         if (!empty($varIDs)) {
             $varList = implode(',', $varIDs);
             $conn->query("
@@ -556,19 +556,19 @@ if ($action === 'deleteProduct' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
         }
 
-        // 4️⃣ Delete variations
+        //  Delete variations
         $conn->query("
             DELETE FROM variations
             WHERE productID IN ($idList)
         ");
 
-        // 5️⃣ Delete product tags
+        //  Delete product tags
         $conn->query("
             DELETE FROM productTag
             WHERE productID IN ($idList)
         ");
 
-        // 6️⃣ Delete products
+        //  Delete products
         $conn->query("
             DELETE FROM products
             WHERE productID IN ($idList)

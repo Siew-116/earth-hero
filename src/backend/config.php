@@ -25,8 +25,6 @@ session_set_cookie_params([
 session_start();
 
 // Database connection
-
-
 //$host =  // your host name
 //$user =  // db username
 //$pass =  // db password
