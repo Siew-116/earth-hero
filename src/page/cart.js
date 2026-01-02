@@ -14,6 +14,7 @@ function CartPage() {
     const [vouchers, setVouchers] = React.useState([]);
     const [showVoucherOverlay, setShowVoucherOverlay] = React.useState(false);
     const [selectedVoucher, setSelectedVoucher] = React.useState(null);
+    const csrf = localStorage.getItem('csrf_token');
 
     // Get cart items from backend
     const loadCart = async () => {
@@ -102,7 +103,7 @@ function CartPage() {
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-Token': window.csrfToken
+                        'X-CSRF-Token': csrf
                     },
                     body: JSON.stringify({
                         itemID: itemId,
@@ -136,7 +137,7 @@ function CartPage() {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json',
-                        'X-CSRF-Token': window.csrfToken },
+                        'X-CSRF-Token': csrf },
                     body: JSON.stringify({ itemID: itemId })
                 }
             );
@@ -223,7 +224,7 @@ function CartPage() {
                 {
                     method: 'POST',
                     credentials: 'include',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf},
                     body: JSON.stringify({
                         itemIDs,                        // send array of selected items
                         voucherID: selectedVoucher?.voucherID || null

@@ -33,7 +33,7 @@ function RegisterForm({switchToLogin}) {
         return '';
     }
 
-    // ===== Password requirements =====
+    // Password requirements 
     function getPasswordRequirements(val) {
         return {
             length: val.length >= 6 && val.length <= 8,
@@ -44,7 +44,7 @@ function RegisterForm({switchToLogin}) {
         };
     }
 
-    // ===== Optional helper to map to color =====
+    // helper to map to color
     function requirementColor(isValid) {
         return isValid ? 'green' : 'red';
     }
@@ -107,7 +107,8 @@ function RegisterForm({switchToLogin}) {
                 setSuccessMsg("Register successfully! Please login now.");
 
                 // Save token in memory
-                window.csrfToken = dataRegister.csrf_token;
+                //window.csrfToken = dataRegister.csrf_token;
+                localStorage.setItem('csrf_token', dataRegister.csrf_token);
 
                 // reset the input field if success
                 setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setRole('');
@@ -116,9 +117,11 @@ function RegisterForm({switchToLogin}) {
             } else {
                 setError(dataRegister.message || "Registration failed.");
                 setErrors(prev => ({ ...prev, email: dataRegister.message }));
+                localStorage.removeItem('csrf_token');
             }
         } catch (err) {
             console.error('Registration failed', err);
+            localStorage.removeItem('csrf_token');
         }
     }
 
@@ -135,6 +138,7 @@ function RegisterForm({switchToLogin}) {
 
     // return sign Up Form
     return e('form', { onSubmit: handleSubmit, className: "register-form"  },
+        
         // Success overlay
         successMsg && e(SuccessOverlay, {
             message: successMsg,
@@ -321,7 +325,9 @@ function LoginForm({switchToSignUp}) {
             const data = await res.json();
             if (!res.ok) throw data;
 
-            window.csrfToken = data.csrf_token;
+            //window.csrfToken = data.csrf_token;
+            localStorage.setItem('csrf_token', data.csrf_token);
+
             if (data.role === "Admin") {
                 window.location.href = "/earth-hero/src/dashboard.html";
             } else {
@@ -329,6 +335,7 @@ function LoginForm({switchToSignUp}) {
             }
         } catch (err) {
             setError(err.message || "Login failed");
+            localStorage.removeItem('csrf_token');
         }
     }
 
@@ -435,8 +442,8 @@ function RegisterPage() {
             e('div', { className: 'modal-content', onClick: e => e.stopPropagation() },
                 e('h2', null, overlayType === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions'),
                 e('p', null, overlayType === 'privacy'
-                    ? "Privacy Policy content goes here..."
-                    : "Terms & Conditions content goes here..."),
+                    ? e(PrivacyPolicy)
+                    : e(TermsCondition)),
                 e('button', { className: 'button', onClick: closeOverlay }, 'Close')
             )
         )
@@ -444,6 +451,53 @@ function RegisterPage() {
     );
 }
 
+function PrivacyPolicy() {
+    return e('div', {className:'pc-content'}, 
+        e('h2', null, "Privacy Policy"),
+        e('h3', {className:'sub-text'}, "Effective Date: Nov 12, 2025"),
+        e('p', {className:'paragraph'}, "At EarthHero, your privacy and trust are our top priorities. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website. By accessing or using our site, you agree to the terms outlined below. We are committed to maintaining transparency and ensuring that your personal data is handled securely and responsibly."),
+        e('h3', {className:'sub-text'},"What information we collect?"),
+        e('p', {className:'paragraph'},"We collect information to provide better services and improve your shopping experience. This includes:"),
+        e('p', {className:'paragraph'},"-Personal Information: Name, email address, phone number, and shipping/billing address when you register, make a purchase, or contact us."),
+        e('p', {className:'paragraph'},"-Payment Information: Securely processed payment details (handled by trusted third-party payment providers)."),
+        e('p', {className:'paragraph'},"-Technical Data: Browser type, device information, IP address, and usage statistics collected through cookies to help us improve website performance."),
+        e('p', {className:'paragraph'},"-Optional Information: Feedback, reviews, or responses to surveys that you voluntarily provide."),
+        e('h3', {className:'sub-text'},"How we use your information?"),
+        e('p', {className:'paragraph'},"Your information helps us to:"),
+        e('p', {className:'paragraph'},"-Process and deliver your orders efficiently."),
+        e('p', {className:'paragraph'},"-Provide customer support and respond to inquiries."),
+        e('p', {className:'paragraph'},"-Send order confirmations, updates, and promotional offers (only with your consent)."),
+        e('p', {className:'paragraph'},"-Improve our website design, functionality, and shopping experience."),
+        e('p', {className:'paragraph'},"-Ensure compliance with legal requirements and prevent fraudulent activities."),
+        e('h3', {className:'sub-text'},"Data protection and security"),
+        e('p', {className:'paragraph'},"We use appropriate technical and organizational measures to protect your personal information from unauthorized access, loss, misuse, or alteration. Sensitive data such as payment information is encrypted and securely processed through trusted third-party payment gateways. Our website uses HTTPS encryption to safeguard your online transactions and account details.")
+    )
+}
+
+function TermsCondition() {
+    return e('div', {className:'tc-content'}, 
+        e('h2', null, "Terms & Condition"),
+        e('h3', {className:'sub-text'}, "Effective Date: Nov 12, 2025"),
+        e('h4', {className:'word-text'},"Welcome to EarthHero! By using our website, you agree to the following terms:"),
+        e('p', {className:'paragraph'}, "At EarthHero, your privacy and trust are our top priorities. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website. By accessing or using our site, you agree to the terms outlined below. We are committed to maintaining transparency and ensuring that your personal data is handled securely and responsibly."),
+        e('p', {className:'paragraph'}, "1. Eligibility & Account"),
+        e('p', {className:'paragraph'}, "You must be at least 18 years old to shop with us. If you create an account, keep your login details private. You are responsible for any actions made through your account, including orders and communications."),
+        e('p', {className:'paragraph'}, "2. Products, Orders & Payment"),
+        e('p', {className:'paragraph'}, "You must be at least 18 years old to shop with us. If you create an account, keep your login details private. You are responsible for any actions made through your account, including orders and communications."),
+        e('p', {className:'paragraph'}, "3. Shipping & Delivery"),
+        e('p', {className:'paragraph'}, "We aim to ship orders as quickly as possible. Delivery times may vary based on your location and courier delays. Once your order is shipped, we are not responsible for delays caused by the courier. Please ensure your shipping address is correct — we are not liable for lost packages due to incorrect information."),
+        e('p', {className:'paragraph'}, "4. Returns & Refunds"),
+        e('p', {className:'paragraph'}, "If you receive a damaged or incorrect item, contact us within 7 days of delivery with proof (photo or video). Items must be unused and in their original packaging. We may offer a replacement, exchange, or refund depending on the situation. We do not accept returns for change of mind unless stated otherwise."),
+        e('p', {className:'paragraph'}, "5. User Conduct"),
+        e('p', {className:'paragraph'}, "You agree not to misuse our website, including attempting to hack, damage, or disrupt our services. Any fraudulent activities will result in account termination and possible legal action."),
+        e('p', {className:'paragraph'}, "6. Privacy"),
+        e('p', {className:'paragraph'}, "We collect certain information to process your orders and improve your shopping experience. We do not sell or disclose your personal data to third parties except for essential services such as payment processing or shipping."),
+        e('p', {className:'paragraph'}, "7. Changes to Terms"),
+        e('p', {className:'paragraph'}, "Earth Hero may update these Terms & Conditions at any time. Continued use of our website means you accept the updated terms."),
+        e('p', {className:'paragraph'}, "8. Contact Us"),
+        e('p', {className:'paragraph'}, "If you have questions about our Terms & Conditions, reach out to us at our official contact channels."),
+    )
+}
 // Render disclaimer
 function Disclaimer({page, openOverlay}) {
 

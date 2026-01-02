@@ -1,4 +1,5 @@
 function CheckoutPage() {
+    const csrf = localStorage.getItem('csrf_token');
     const [checkoutConfirmed, setCheckoutConfirmed] = React.useState(false);
     const [errorMsg, setErrorMsg] = React.useState('');
     const [useDefaultAddr, setUseDefaultAddr] = React.useState(false);
@@ -82,24 +83,34 @@ function CheckoutPage() {
         });
     }, []);
 
-
     React.useEffect(() => {
         const handleBeforeUnload = (e) => {
             if (!checkoutConfirmed) {
                 e.preventDefault();
-                e.returnValue = "You have unsaved checkout data. Are you sure you want to leave?";
+                e.returnValue = "You haven't finished transaction. Are you sure you want to leave?";
+            }
+        };
 
+        const handleUnload = () => {
+            if (!checkoutConfirmed) {
                 navigator.sendBeacon(
                     "/earth-hero/src/backend/transaction.php?action=failCheckout",
-                    JSON.stringify({ "csrfToken": window.csrfToken })
+                    JSON.stringify({ csrfToken: csrf })
                 );
             }
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('unload', handleUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('unload', handleUnload);
+        };
     }, [checkoutConfirmed]);
 
+
+    
 
     React.useEffect(() => {
         const fee = shippingOption ? shippingOptionsData[shippingOption].deliveryFee : 0;
@@ -229,7 +240,7 @@ function CheckoutPage() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-Token": window.csrfToken
+                "X-CSRF-Token": csrf
             },
             credentials: "include"
         })
@@ -273,7 +284,7 @@ function CheckoutPage() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-Token": window.csrfToken
+                        "X-CSRF-Token": csrf
                     },
                     credentials: "include",
                     body: JSON.stringify({

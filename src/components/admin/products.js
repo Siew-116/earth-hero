@@ -7,7 +7,14 @@ import { fetchProducts } from "./utils/productService.js";
 export async function products(container) {
     container.innerHTML = `
         <div class="products-management">
-            <h2 class="section-title">Products Management</h2>
+            <div class='pm-header'>
+                <h2 class="section-title">Products Management</h2>
+
+                <select id="category-filter" class="category-dropdown">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <span>Total Products</span>
@@ -18,6 +25,7 @@ export async function products(container) {
                     <h3 id="stat-total-sellers">...</h3>
                 </div>
             </div>
+
 
             <div class="table-container">
                 <div class="table-controls">
@@ -74,6 +82,34 @@ export async function products(container) {
 
     let allProducts = [];
     let searchTimer;
+
+    async function fetchCategories() {
+        const res = await fetch(
+            "/earth-hero/src/backend/manageProducts.php?action=allCategories"
+        );
+        const data = await res.json();
+        console.log("Categories fetched:", data); // <--- debug
+        return data|| [];
+    }
+    async function loadCategories() {
+        try {
+            const categories = await fetchCategories();
+            console.log("Categories array:", categories); // <--- debug
+            const select = container.querySelector("#category-filter");
+
+            select.innerHTML = `
+                <option value="">All Categories</option>
+                ${categories.map(c =>
+                    `<option value="${c.categoryID}">${c.name}</option>`
+                ).join("")}
+            `;
+        } catch (err) {
+            console.error("Failed to load categories", err);
+        }
+    }
+
+
+    
 
     async function loadProducts() {
         try {
@@ -259,8 +295,35 @@ export async function products(container) {
         }, 300);
     };
 
+    let selectedCategory = "";
+
+    // add a listener for the category dropdown
+    container.querySelector("#category-filter").onchange = e => {
+        selectedCategory = e.target.value;
+        applyFilters();
+    };
+
+    // new helper function to combine search + category filtering
+    function applyFilters() {
+        let filtered = allProducts;
+
+        if (selectedCategory) {
+            filtered = filtered.filter(p => p.categoryID == selectedCategory);
+        }
+
+        // update stats according to filtered products
+        document.getElementById("stat-total-products").innerText = filtered.length;
+        document.getElementById("stat-total-sellers").innerText =
+            new Set(filtered.map(p => p.seller)).size;
+
+        // update table and result count
+        renderTable(filtered);
+    }
+
+
     container.querySelector("#refresh-table").onclick = loadProducts;
     container.querySelector(".btn-add").onclick = () => showAddProductOverlay(loadProducts);
 
-    loadProducts();
+    loadCategories().then(loadProducts);
+
 }

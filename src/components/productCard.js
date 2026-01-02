@@ -3,6 +3,7 @@ function ProductCard({ product }) {
     const [successMsg, setSuccessMsg] = React.useState('');
     const [stock, setStock] = React.useState(product.stock);
     const [sales, setSales] = React.useState(product.sales);
+    const csrf = localStorage.getItem('csrf_token');
 
     async function handleAddToCart() {
         // ALL variations out of stock, do nothing
@@ -27,7 +28,7 @@ function ProductCard({ product }) {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json', 
-                    'X-CSRF-Token': window.csrfToken 
+                    'X-CSRF-Token': csrf 
                 },
                 credentials: 'include',
                 body: JSON.stringify(payload)

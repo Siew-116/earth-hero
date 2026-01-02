@@ -8,7 +8,7 @@ function PageHeader() {
    React.useEffect(() => {
         const loadSession = async () => {
             try {
-                // 1️⃣ Try to get logged-in user info
+                // Try to get logged-in user info
                 const resUser = await fetch('/earth-hero/src/backend/users.php?action=getUser', {
                     credentials: 'include'
                 });
@@ -21,11 +21,18 @@ function PageHeader() {
                         ...dataUser.user,
                         defaultAddress: dataUser.default_address || {}
                     });
-                    window.csrfToken = dataUser.csrf_token;
+                    //window.csrfToken = dataUser.csrf_token;
+                    localStorage.setItem('csrf_token', dataUser.csrf_token);
                     window.loggedIn = true;
-                } 
+                    
+                } else {
+                    localStorage.removeItem('csrf_token');
+                    
+                }
             } catch (err) {
                 setUser({ loggedIn: false });
+                localStorage.removeItem('csrf_token');
+               
             }
         };
         loadSession();
@@ -99,10 +106,7 @@ function PageHeader() {
         e('nav', null,
             e('a', { className: 'nav-btn', href: "./index.html" }, 'Home'),
             e('a', { className: 'nav-btn', href: "./shop.html" }, 'Shop Now'),
-            e('a', { className: 'nav-btn', href: '#'}, 'About'),
-            e('a', { className: 'nav-btn', href: '#' }, 'Pricing'),
-            e('a', { className: 'nav-btn', href: '#' }, 'Contact'),
-            e('a', { className: 'nav-btn', href: '#' }, 'Join Us'),
+            e('a', { className: 'nav-btn', href: './about.html'}, 'About Us'),
             e('a', { className: 'nav-btn', href: "./purchase.html" }, 'My Purchase'),
             e("button", {className: 'cart-btn', onClick: () => { window.location.href = './cart.html'; } },
                 e('i', { className: 'fa fa-cart-shopping'}),
@@ -125,10 +129,7 @@ function PageHeader() {
         },
             e('a', { className: 'side-link', href: "./index.html" }, 'Home'),
             e('a', { className: 'side-link', href: "./shop.html" }, 'Shop Now'),
-            e('a', { className: 'side-link', href: '#' }, 'About'),
-            e('a', { className: 'side-link', href: '#' }, 'Pricing'),
-            e('a', { className: 'side-link', href: '#' }, 'Contact'),
-            e('a', { className: 'side-link', href: '#' }, 'Join Us'),
+            e('a', { className: 'side-link', href: './about.html' }, 'About Us'),
             e('a', { className: 'side-link', href: "./purchase.html" }, 'My Purchase'),
             e('a', { className: 'side-link', href: './cart.html' }, `Cart (${cartCount})`),
             e('button', { className: 'side-link', onClick: checkLogin}, 'Account')

@@ -1,4 +1,5 @@
 function MyProfile() {
+    const csrf = localStorage.getItem('csrf_token');
     const [errorMsg, setErrorMsg] = React.useState('');
     const [successMsg, setSuccessMsg] = React.useState('');
     const [isEditing, setIsEditing] = React.useState(false);
@@ -34,7 +35,8 @@ function MyProfile() {
                 const data = await res.json();
                 if (!data) return;
                 const user = data.user || {};
-                window.csrfToken = data.csrf_token;
+                //window.csrfToken = data.csrf_token;
+                localStorage.setItem('csrf_token', data.csrf_token);
 
                 // User table
                 setUsername(user.username || ''); 
@@ -75,7 +77,7 @@ function MyProfile() {
                 credentials: 'include',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': window.csrfToken 
+                    'X-CSRF-Token': csrf
                 },
                 body: JSON.stringify(payload)
             });
@@ -393,6 +395,366 @@ function MyProfile() {
     );
 
 }
+
+function Subscription() {
+    return e('div', {className:'section-page'},
+        e('p', { className: 'section-title' }, "My Subscription"),
+        e('div', {className:'about-row'},
+            e('div', {className:'member-card-container'},
+                e('h3', null, 'EarthHero VIP'),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Member ID"),
+                    e('p',{className:'word-text'}, "MB23232344")
+                ),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Subscription Plan"),
+                    e('p',{className:'word-text'}, "Yearly Pro Member")
+                ),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Price"),
+                    e('p',{className:'word-text'}, "RM329.99")
+                ),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Last Payment"),
+                    e('p',{className:'word-text'}, "12-11-2025")
+                ),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Next Payment"),
+                    e('p',{className:'word-text'}, "12-11-2026")
+                ),
+                e('div', {className:'member-info'},
+                    e('p',{className:'sub-text'}, "Status"),
+                    e('p',null , "Active")
+                )
+            ),
+            e('div', {className:'about-col'},
+                e('h4', {className: 'payment-method-title'}, "Payment Method"),
+                e('div', {className: 'pm-row'},
+                    e('p', {className: 'word-text'}, "MasterCard"),
+                    e('p', {className: 'change-btn'}, "Change")
+                )
+            )
+        ),
+        e('p', null, "Change Subscription Plan"),
+        e('p', {className: 'error'}, "Cancel Subscription"),
+        e('p', {className: 'section-title ps-title'}, "Product Subscription"),
+        
+        e('p', {className: 'subs-id'}, "Subscription ID: PS2323232"),
+        e('div', {className:'product-card subs-card'},
+           e('div', { className: 'img-container subs-img' },
+            e('img', { className: 'product-img', src: "../assets/Blanket (oat).png", alt: "product" }),
+                ),
+            e('div', { className: 'product-details' },
+                e('div', {className:'subs-title'},
+                    e('p', { className: 'word-text' }, "Eco Organic Logo Jeans "),
+                    e('p', {className: 'word-text'}, "x100")
+                ),
+                e('p', { className: 'title-text' }, "Cloth & Accessories"),
+                e('h3', { id: 'product-price' }, null, "RM54.00"),
+                e('p', {className: 'sub-text'}, "Variation: XL"),
+                e('div', {className: 'subs-row'},
+                    e('p', {className:'period'}, "Period: 23/12/2025 - 25/12/2026"),
+                    e('p', {className:'sub-text'}, "Every 2 weeks"),
+                    e('h3', {id:'product-price'}, "Total: RM54.00")
+                )
+                
+            )
+        ),
+
+        e('p', {className: 'subs-id'}, "Subscription ID: PS2323232"),
+        e('div', {className:'product-card subs-card'},
+           e('div', { className: 'img-container subs-img' },
+            e('img', { className: 'product-img', src: "../assets/Blanket (oat).PNG", alt: "product" }),
+                ),
+            e('div', { className: 'product-details' },
+                e('div', {className:'subs-title'},
+                    e('p', { className: 'word-text' }, "Eco Organic Logo Jeans "),
+                    e('p', {className: 'word-text'}, "x100")
+                ),
+                e('p', { className: 'title-text' }, "Cloth & Accessories"),
+                e('h3', { id: 'product-price' }, null, "RM54.00"),
+                e('p', {className: 'sub-text'}, "Variation: XL"),
+                e('div', {className: 'subs-row'},
+                    e('p', {className:'period'}, "Period: 23/12/2025 - 25/12/2026"),
+                    e('p', {className:'sub-text'}, "Every 2 weeks"),
+                    e('h3', {id:'product-price'}, "Total: RM54.00")
+                )
+                
+            )
+        )
+
+    )
+}
+
+
+function RewardsVoucher() {
+    return e('div', {className: 'section-page'},
+        e('p', {className: 'section-title ps-title'}, "My EcoPoints"),
+        e('div', {className:'rw-top'},
+            e('div', {className:'rw-card'},
+                e('img',{ className: 'rw-logo', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                e('h1', null, "1200pts")
+            ),
+            e('div', {className:'pts-overlay'},
+                e('i', {className:'fa fa-lock'}),
+                e('p', {className: 'word-text'}, "Unlock EcoPoints collection now"),
+                e('p', {className: 'word-text'}, "to enjoy exclusive discount!"),
+                e('button', {className: 'button join-btn'}, "Join Member")
+            ),
+        ),
+
+        e('div', {className:'about-row rewards-tips'},
+            // LEFT
+            e('div', {className: 'about-col tips-section'},
+                e('h3',null, "How to earn EcoPoints?"),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Join as Green Member"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "500")
+                    ),
+                    e('button', {className:'go-btn'}, "Go")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Upgrade to Pro Member"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "1000")
+                    ),
+                    e('button', {className:'go-btn'}, "Go")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Make a purchase"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "100")
+                    ),
+                    e('button', {className:'go-btn'}, "Go")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Leave a product review"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "50")
+                    ),
+                    e('button', {className:'go-btn'}, "Go")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Share our store on social media"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "10")
+                    ),
+                    e('button', {className:'go-btn'}, "Go")
+                )
+            ),
+            // RIGHT
+            e('div', {className: 'about-col tips-section'},
+                e('h3',null, "Redeem EcoPoints"),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "RM8 Off Voucher"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "500")
+                    ),
+                    e('button', {className:'go-btn'}, "Claim")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "RM15 Off Voucher"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "800")
+                    ),
+                    e('button', {className:'go-btn'}, "Claim")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "RM20 Off Voucher"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "1000")
+                    ),
+                    e('button', {className:'go-btn'}, "Claim")
+                ),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Plant a Tree"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "100")
+                    ),
+                    e('button', {className:'go-btn'}, "Plant")
+                ),
+                e('div', {className:'progress-bar'},
+                    e('div', {className:'grey-bar'},
+                        e('div', {className:'green-bar'})
+                    ),
+                    e('p', null, "10/200")
+                ),
+                e('p', {className:'sub-text'}, "You've help plant 10 tress in our reforestation project."),
+                e('p', {className:'sub-text'}, "Plant more to get RM50 off voucher."),
+                e('div', {className:'tips-row'},
+                    e('p',{className:'word-text'}, "Cleanup Ocean"),
+                    e('div', {className: 'pts'},
+                        e('img',{ className: 'rw-coin', src: "../assets/earthhero-green.jpg", alt: "logo" }),
+                        e('p', {className: 'title-text pts-num'}, "100")
+                    ),
+                    e('button', {className:'go-btn'}, "Clean"),
+                ),
+                e('div', {className:'progress-bar'},
+                    e('div', {className:'grey-bar'},
+                        e('div', {className:'green-bar'})
+                    ),
+                    e('p', null, "10/200")
+                ),
+                e('p', {className:'sub-text'}, "You've help remove 10kg of wastes in our ocean cleanup project."),
+                e('p', {className:'sub-text'}, "Clean more to get RM50 off voucher.")
+            ),
+        ),
+
+        e('p', {className: 'section-title ps-title'}, "My Vouchers"),
+        e('div', {className: 'voucher-row' }, 
+            // Voucher card
+            e('div', {className: 'voucher-card'},
+                    // Name
+                    e('div', { className: 'voucher-name' },
+                        e('h4', null, "RM5 Off Voucher")
+                    ),
+                    // Details
+                    e('div', { className: 'voucher-details' },
+                            e('p', null, "Min spend of RM10"),
+                            e('p', null, "Available for All Vendors"),
+                            e('div', { className: 'voucher-expired' },
+                                e('i', { className: "fa-regular fa-clock" }),
+                                e('p', null, "Expires in 10 day")
+                            )
+                    ),
+                    // Use button
+                    e('div', { className: 'voucher-button' },
+                        e('button', { className: 'button use-btn' }, "Use")
+                    )
+            ),
+            // Qty
+            e('div', { className: 'sub-text voucher-qty' },
+                e('p', null, "x 10")
+            )
+        ),
+        e('div', {className: 'voucher-row' }, 
+            // Voucher card
+            e('div', {className: 'voucher-card'},
+                    // Name
+                    e('div', { className: 'voucher-name' },
+                        e('h4', null, "RM10 Off Voucher")
+                    ),
+                    // Details
+                    e('div', { className: 'voucher-details' },
+                            e('p', null, "Min spend of RM10"),
+                            e('p', null, "Available for All Vendors"),
+                            e('div', { className: 'voucher-expired' },
+                                e('i', { className: "fa-regular fa-clock" }),
+                                e('p', null, "Expires in 10 day")
+                            )
+                    ),
+                    // Use button
+                    e('div', { className: 'voucher-button' },
+                        e('button', { className: 'button use-btn' }, "Use")
+                    )
+            ),
+            // Qty
+            e('div', { className: 'sub-text voucher-qty' },
+                e('p', null, "x 10")
+            )
+        )
+    )
+}
+
+function HelpCentre() {
+    return e('div', {className:'section-page'},
+        e('h2', null, "Category"),
+        e('div', {className:'about-row category-row'},
+            e('button', {className:'help-category'}, "General"),
+            e('button', {className:'help-category'}, "Orders & Shipping"),
+            e('button', {className:'help-category'}, "Refunds & Cancellation"),
+            e('button', {className:'help-catefory'}, "Payments"),
+            e('button', {className:'help-category'}, "EcoPoints & Vouchers")
+        ),
+
+        e('h2', null, "Frequently-Asked Question"),
+        e('p', {className:'word-text'}, "Can I track my order?"),
+        e('p', {className:'word-text'}, "What should I do if my order hasn't arrived?"),
+        e('p', {className:'word-text'}, "Is the international shipping available?"),
+        e('p', {className:'word-text'}, "Do you offer cash-on-delivery?"),
+        e('p', {className:'word-text'}, "What's the difference between Green Member and Pro Member?"),
+        e('p', {className:'word-text'}, "Are your packaging materials eco-friendly?"),
+
+        e('h2', {className:'quest-title'}, "Do you have any other question?"),
+        e('div', {className:'about-row quest-section'},
+            e('div', {className:'contact-box'},
+                e('i', {className:'fa fa-phone'}),
+                e('div', {className:'about-col'},
+                    e('h4', null, "Give Us A Call!"),
+                    e('p', null, "EarthHero: +0323232(8am - 5pm)")
+                )
+            ),
+
+            e('div', {className:'contact-box'},
+                e('i', {className:'fa fa-envelope'}),
+                e('div', {className:'about-col'},
+                    e('h4', null, "Send Us An Email"),
+                    e('p', null, "earthHero@gmail.com")
+                )
+            )
+        )
+    )
+}
+
+
+function PrivacyPolicy() {
+    return e('div', {className: 'section-page'},
+        e('h2', null, "Privacy Policy"),
+        e('h3', {className:'sub-text'}, "Effective Date: Nov 12, 2025"),
+        e('p', {className:'paragraph'}, "At EarthHero, your privacy and trust are our top priorities. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website. By accessing or using our site, you agree to the terms outlined below. We are committed to maintaining transparency and ensuring that your personal data is handled securely and responsibly."),
+        e('h3', {className:'sub-text'},"What information we collect?"),
+        e('p', {className:'paragraph'},"We collect information to provide better services and improve your shopping experience. This includes:"),
+        e('p', {className:'paragraph'},"-Personal Information: Name, email address, phone number, and shipping/billing address when you register, make a purchase, or contact us."),
+        e('p', {className:'paragraph'},"-Payment Information: Securely processed payment details (handled by trusted third-party payment providers)."),
+        e('p', {className:'paragraph'},"-Technical Data: Browser type, device information, IP address, and usage statistics collected through cookies to help us improve website performance."),
+        e('p', {className:'paragraph'},"-Optional Information: Feedback, reviews, or responses to surveys that you voluntarily provide."),
+        e('h3', {className:'sub-text'},"How we use your information?"),
+        e('p', {className:'paragraph'},"Your information helps us to:"),
+        e('p', {className:'paragraph'},"-Process and deliver your orders efficiently."),
+        e('p', {className:'paragraph'},"-Provide customer support and respond to inquiries."),
+        e('p', {className:'paragraph'},"-Send order confirmations, updates, and promotional offers (only with your consent)."),
+        e('p', {className:'paragraph'},"-Improve our website design, functionality, and shopping experience."),
+        e('p', {className:'paragraph'},"-Ensure compliance with legal requirements and prevent fraudulent activities."),
+        e('h3', {className:'sub-text'},"Data protection and security"),
+        e('p', {className:'paragraph'},"We use appropriate technical and organizational measures to protect your personal information from unauthorized access, loss, misuse, or alteration. Sensitive data such as payment information is encrypted and securely processed through trusted third-party payment gateways. Our website uses HTTPS encryption to safeguard your online transactions and account details.")
+    )
+}
+
+function TermsCondition() {
+    return e('div', {className: 'section-page'},
+        e('h2', null, "Terms & Condition"),
+        e('h3', {className:'sub-text'}, "Effective Date: Nov 12, 2025"),
+        e('h4', {className:'word-text'},"Welcome to EarthHero! By using our website, you agree to the following terms:"),
+        e('p', {className:'paragraph'}, "At EarthHero, your privacy and trust are our top priorities. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website. By accessing or using our site, you agree to the terms outlined below. We are committed to maintaining transparency and ensuring that your personal data is handled securely and responsibly."),
+        e('p', {className:'paragraph'}, "1. Eligibility & Account"),
+        e('p', {className:'paragraph'}, "You must be at least 18 years old to shop with us. If you create an account, keep your login details private. You are responsible for any actions made through your account, including orders and communications."),
+        e('p', {className:'paragraph'}, "2. Products, Orders & Payment"),
+        e('p', {className:'paragraph'}, "You must be at least 18 years old to shop with us. If you create an account, keep your login details private. You are responsible for any actions made through your account, including orders and communications."),
+        e('p', {className:'paragraph'}, "3. Shipping & Delivery"),
+        e('p', {className:'paragraph'}, "We aim to ship orders as quickly as possible. Delivery times may vary based on your location and courier delays. Once your order is shipped, we are not responsible for delays caused by the courier. Please ensure your shipping address is correct — we are not liable for lost packages due to incorrect information."),
+        e('p', {className:'paragraph'}, "4. Returns & Refunds"),
+        e('p', {className:'paragraph'}, "If you receive a damaged or incorrect item, contact us within 7 days of delivery with proof (photo or video). Items must be unused and in their original packaging. We may offer a replacement, exchange, or refund depending on the situation. We do not accept returns for change of mind unless stated otherwise."),
+        e('p', {className:'paragraph'}, "5. User Conduct"),
+        e('p', {className:'paragraph'}, "You agree not to misuse our website, including attempting to hack, damage, or disrupt our services. Any fraudulent activities will result in account termination and possible legal action."),
+        e('p', {className:'paragraph'}, "6. Privacy"),
+        e('p', {className:'paragraph'}, "We collect certain information to process your orders and improve your shopping experience. We do not sell or disclose your personal data to third parties except for essential services such as payment processing or shipping."),
+        e('p', {className:'paragraph'}, "7. Changes to Terms"),
+        e('p', {className:'paragraph'}, "Earth Hero may update these Terms & Conditions at any time. Continued use of our website means you accept the updated terms."),
+        e('p', {className:'paragraph'}, "8. Contact Us"),
+        e('p', {className:'paragraph'}, "If you have questions about our Terms & Conditions, reach out to us at our official contact channels."),
+    )
+}
+
 function ProfilePage() {
     const query = new URLSearchParams(window.location.search);
     const initialSection = query.get('section') || 'my-profile';

@@ -10,6 +10,13 @@ body {
   background-color: var(--bg-light);
 }
 
+.web-disclaimer {
+    display: block;
+    background-color: #3B4E3C;
+    color: white;
+    padding-left: 1rem;
+}
+
 nody.modal-open{
     overflow: hidden;
 }
@@ -176,6 +183,7 @@ nody.modal-open{
     border-radius: 10px;
     flex: 1;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+   
 }
 
 .trend.positive { color: #28a745; font-size: 0.8rem; }
@@ -245,6 +253,23 @@ td {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+
+.pm-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1rem 0rem;
+  border-radius: 4px;
+
+}
+
+.category-dropdown {
+  padding: 0.5rem 1rem;
+  border: 1px solid #444;
+  background: none;
 }
 
 /* table image styling for the product management page */
@@ -1006,10 +1031,17 @@ hr {
 }
 
 /* ===== STATS ===== */
+.uh-stats-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
 .uh-cards {
   display: flex;
   gap: 1.25rem;
   margin: 1.5rem 0;
+  flex-direction: column;
 }
 
 .uh-card {
@@ -1068,6 +1100,7 @@ hr {
 .uh-table {
   width: 100%;
   border-collapse: collapse;
+  background-color: white;
 }
 
 .uh-table th,
@@ -1100,6 +1133,35 @@ hr {
   text-align: center;
   vertical-align: middle;
 }
+
+
+.uh-content-header, .date-field  {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.uh-content-header {
+  padding: 1rem 0;
+}
+.date-filter {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.date-field {
+  gap: 1rem;
+}
+
+.date-field input {
+  padding: 1rem;
+  background: none;
+  border: 1px solid #696969;
+  border-radius: 4px;
+}
+
 
 /* ===== CHARTS FIX ===== */
 .uh-chart-container {
@@ -1135,14 +1197,18 @@ hr {
   background: #fff;
   border-radius: 0.75rem;
   padding: 0.9375rem;
-  height: 16.25rem;
+  height: 19rem;
+  width: 19rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .uh-users-table-section {
-    margin: 2rem 0;
+  background-color: white;
+  margin: 2rem 0;
+  padding: 2rem 1rem;
+  border-radius: 4px;
 }
 /* ===== MODAL ===== */
 #uh-userModal {
@@ -1200,6 +1266,7 @@ hr {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
+    padding-top: 1.2rem;
 }
 
 /* ===== TABLET ===== */

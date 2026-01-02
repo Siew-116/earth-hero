@@ -1,16 +1,48 @@
 export async function users(container) {
     container.innerHTML = `
     <div class="uh-content-full">
-        <h2 class="section-title">Users Management</h2>
-        <div class="uh-cards">
-            <div class="uh-card">
-                <h3>New Users</h3>
-                <h2 id="uh-newUsers">0</h2>
-                <span class="uh-trend" id="uh-newUserPercent">% increase compared to last month</span>
+        <div class='uh-content-header'>
+            <h2 class="section-title">Users Management</h2>
+
+            <div class="date-filter">
+                <div class="date-field">
+                    <label for="fromDate">From</label>
+                    <input type="date" id="fromDate">
+                </div>
+
+                <div class="date-field">
+                    <label for="toDate">To</label>
+                    <input type="date" id="toDate">
+                </div>
             </div>
-            <div class="uh-card">
-                <h3>Total Users</h3>
-                <h2 id="uh-totalUsers">0</h2>
+        </div>
+
+        <div class="uh-stats-container">
+            <div class="uh-cards">
+                <div class="uh-card">
+                    <h3>New Users</h3>
+                    <h2 id="uh-newUsers">0</h2>
+                    <span class="uh-trend" id="uh-newUserPercent">% increase compared to last month</span>
+                </div>
+                <div class="uh-card">
+                    <h3>Total Users</h3>
+                    <h2 id="uh-totalUsers">0</h2>
+                </div>
+            </div>
+
+            <div class="uh-charts-grid">
+                <div class="uh-chart-box">
+                    <h4 class="uh-chart-title">Gender Distribution</h4>
+                    <div class="uh-chart-container"><canvas id="uh-genderChart"></canvas></div>
+                </div>
+                <div class="uh-chart-box">
+                    <h4 class="uh-chart-title">Top Countries</h4>
+                    <div class="uh-chart-container"><canvas id="uh-countryChart"></canvas></div>
+                </div>
+                <div class="uh-chart-box">
+                    <h4 class="uh-chart-title">Membership Plans</h4>
+                    <div class="uh-chart-container"><canvas id="uh-membershipChart"></canvas></div>
+                </div>
             </div>
         </div>
 
@@ -36,20 +68,6 @@ export async function users(container) {
             </table>
         </div>
 
-        <div class="uh-charts-grid">
-            <div class="uh-chart-box">
-                <h4 class="uh-chart-title">Gender Distribution</h4>
-                <div class="uh-chart-container"><canvas id="uh-genderChart"></canvas></div>
-            </div>
-            <div class="uh-chart-box">
-                <h4 class="uh-chart-title">Top Countries</h4>
-                <div class="uh-chart-container"><canvas id="uh-countryChart"></canvas></div>
-            </div>
-            <div class="uh-chart-box">
-                <h4 class="uh-chart-title">Membership Plans</h4>
-                <div class="uh-chart-container"><canvas id="uh-membershipChart"></canvas></div>
-            </div>
-        </div>
 
         <!-- USER MODAL -->
         <div id="uh-userModal" class="uh-modal">
@@ -94,30 +112,51 @@ export async function users(container) {
     let genderChart, countryChart, membershipChart;
 
     // ------------------- LOAD DASHBOARD -------------------
-    async function loadUsers() {
+    async function loadUsers(fromDate = null, toDate = null) {
         try {
-            const res = await fetch("/earth-hero/src/backend/manageUsers.php?action=dashboard");
+            let url = "/earth-hero/src/backend/manageUsers.php?action=dashboard";
+
+            if (fromDate && toDate) {
+                url += `&from=${fromDate}&to=${toDate}`;
+            }
+
+            const res = await fetch(url);
             const d = await res.json();
 
             // Stat cards
             document.getElementById("uh-newUsers").innerText = d.newUsers;
             document.getElementById("uh-totalUsers").innerText = d.totalUsers;
-            document.getElementById("uh-newUserPercent").innerText =
-                `${d.newUserPercent}% compared to last month`;
 
-            // Users table
+            const percentEl = document.getElementById("uh-newUserPercent");
+            const percent = Number(d.newUserPercent);
+
+            if (percent > 0) {
+                percentEl.innerText = `+${percent}% increase compared to previous period`;
+                percentEl.classList.add("positive");
+                percentEl.classList.remove("negative");
+            } else if (percent < 0) {
+                percentEl.innerText = `${percent}% decrease compared to previous period`;
+                percentEl.classList.add("negative");
+                percentEl.classList.remove("positive");
+            } else {
+                percentEl.innerText = `0% no change`;
+                percentEl.classList.remove("positive", "negative");
+            }
+
+            // Table
             allUsers = d.users;
             renderTable(allUsers);
 
             // Charts
-            drawChart("uh-genderChart", d.gender, genderChart, (c) => genderChart = c);
-            drawChart("uh-countryChart", d.countries, countryChart, (c) => countryChart = c);
-            drawChart("uh-membershipChart", d.memberships, membershipChart, (c) => membershipChart = c);
+            drawChart("uh-genderChart", d.gender, genderChart, c => genderChart = c);
+            drawChart("uh-countryChart", d.countries, countryChart, c => countryChart = c);
+            drawChart("uh-membershipChart", d.memberships, membershipChart, c => membershipChart = c);
 
         } catch (err) {
             console.error("Dashboard error:", err);
         }
     }
+
 
     // ------------------- TABLE -------------------
     function renderTable(users) {
@@ -238,4 +277,30 @@ export async function users(container) {
 
     // ------------------- INIT -------------------
     loadUsers();
+
+
+    // ------------------- FILTER USER BY REGISTER TIME -------------------
+    const fromInput = container.querySelector("#fromDate");
+    const toInput = container.querySelector("#toDate");
+
+    // default: this month
+    const today = new Date().toISOString().slice(0, 10);
+    toInput.value = today;
+
+    fromInput.addEventListener("change", reloadWithDate);
+    toInput.addEventListener("change", reloadWithDate);
+
+    function reloadWithDate() {
+        const from = fromInput.value;
+        const to = toInput.value;
+
+        if (!from || !to) return;
+        if (from > to) {
+            alert("From date cannot be later than To date");
+            return;
+        }
+
+        loadUsers(from, to);
+    }
+
 }

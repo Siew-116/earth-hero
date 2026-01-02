@@ -39,7 +39,7 @@ function SearchBar() {
             e("input", {
                 className: "search-input",
                 type: "text",
-                placeholder: "Search eco products..",
+                placeholder: "Search products by name or description..",
                 value: keyword,
                 onChange: handleChange
             })

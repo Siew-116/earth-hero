@@ -18,6 +18,7 @@ export async function showAddProductOverlay(onAdd) {
         console.error("Failed to load sellers", err);
     }
 
+    
     const overlay = document.createElement('div');
     overlay.className = 'details-overlay';
 
@@ -150,6 +151,22 @@ export async function showAddProductOverlay(onAdd) {
             }
         };
     });
+
+    const sellerSelect = overlay.querySelector('select[name="sellerID"]');
+    const locationInput = overlay.querySelector('input[name="location"]');
+
+    // Set initial location if a seller is pre-selected
+    if (sellerSelect.value) {
+        const selectedOption = sellerSelect.selectedOptions[0];
+        locationInput.value = selectedOption.dataset.location || '';
+    }
+
+    // Update location whenever seller changes
+    sellerSelect.addEventListener('change', () => {
+        const selectedOption = sellerSelect.selectedOptions[0];
+        locationInput.value = selectedOption.dataset.location || '';
+    });
+
 
     // --- HASHTAG LOGIC ---
     const tagInput = overlay.querySelector('#tag-input');

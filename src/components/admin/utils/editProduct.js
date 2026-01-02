@@ -1,13 +1,12 @@
 export async function showEditProductOverlay(product, onSave) {
     let categories = [];
-    let sellerLocation = ''; // fetched from backend
-    console.log("Product:", product);
+    let sellerLocation = '';
+    
 
     // Fetch categories
     try {
         const res = await fetch("./backend/manageProducts.php?action=allCategories");
         categories = await res.json();
-        console.log("Categories:", categories);
     } catch (err) {
         console.error("Failed to load categories", err);
     }
@@ -22,7 +21,6 @@ export async function showEditProductOverlay(product, onSave) {
         const data = await res.json();
         if (data.status !== "success") throw new Error(data.message);
         sellerLocation = data.location;
-        console.log("Seller location:", sellerLocation);
     } catch (err) {
         console.error("Failed to fetch seller location", err);
     }

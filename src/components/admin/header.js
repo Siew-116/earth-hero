@@ -10,7 +10,7 @@ async function fetchCurrentUser() {
     );
 
     const data = await res.json();
-    console.log(data)
+
     if (!data.loggedIn) {
         throw new Error("Not logged in");
     }

@@ -29,6 +29,26 @@ export async function transactions(container) {
         </div>
       </div>
 
+
+      <!-- Charts Section (Outside Table Card) -->
+      <div class="grid grid-cols-2 gap-[1.5rem]">
+        <!-- Daily Revenue Trends -->
+        <div class="bg-white p-[1.5rem] rounded-[0.75rem] shadow-sm">
+          <h3 class="text-[1.125rem] font-semibold mb-[1.5rem]">Daily Revenue Trends</h3>
+          <div id="revenueChart" class="h-[300px] flex items-center justify-center text-gray-400">
+            Loading chart...
+          </div>
+        </div>
+
+        <!-- Sales Breakdown by Category -->
+        <div class="bg-white p-[1.5rem] rounded-[0.75rem] shadow-sm">
+          <h3 class="text-[1.125rem] font-semibold mb-[1.5rem]">Sales Breakdown by Category</h3>
+          <div id="breakdownChart" class="h-[300px] flex items-center justify-center text-gray-400">
+            Loading chart...
+          </div>
+        </div>
+      </div>
+
       <!-- Title and Filter Buttons in One Row -->
       <div class="px-[1.5rem] py-[1rem] border-t border-b flex justify-between items-center">
         <h3 class="text-[1.125rem] font-semibold">Transaction Summary</h3>
@@ -226,24 +246,7 @@ export async function transactions(container) {
 
     </div>
 
-    <!-- Charts Section (Outside Table Card) -->
-    <div class="grid grid-cols-2 gap-[1.5rem]">
-      <!-- Daily Revenue Trends -->
-      <div class="bg-white p-[1.5rem] rounded-[0.75rem] shadow-sm">
-        <h3 class="text-[1.125rem] font-semibold mb-[1.5rem]">Daily Revenue Trends</h3>
-        <div id="revenueChart" class="h-[300px] flex items-center justify-center text-gray-400">
-          Loading chart...
-        </div>
-      </div>
-
-      <!-- Sales Breakdown by Category -->
-      <div class="bg-white p-[1.5rem] rounded-[0.75rem] shadow-sm">
-        <h3 class="text-[1.125rem] font-semibold mb-[1.5rem]">Sales Breakdown by Category</h3>
-        <div id="breakdownChart" class="h-[300px] flex items-center justify-center text-gray-400">
-          Loading chart...
-        </div>
-      </div>
-    </div>
+    
 
   </div>
 </div>
@@ -268,49 +271,71 @@ let sortColumn = null;
 let sortDirection = 'asc';
 
 function validateDateRange() {
-  const fromDate = new Date(dateFrom.value);
-  const toDate = new Date(dateTo.value);
+  const fromInput = document.getElementById('dateFrom');
+  const toInput = document.getElementById('dateTo');
 
+  const fromDate = new Date(fromInput.value);
+  const toDate = new Date(toInput.value);
+
+  // Ensure "From" is not after "To"
   if (fromDate > toDate) {
     alert('Error: "From" date cannot be later than "To" date');
-    dateFrom.value = dateTo.value;
+    fromInput.value = toInput.value;
+    return;
   }
 
   // Calculate difference in days
-  const diffTime = toDate - fromDate; // difference in milliseconds
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // add 1 to include both days
-
-  if (currentFilter === 'daily' && diffDays !== 1) {
-    alert('Daily filter allows only one day. Adjusting "To" date to match "From" date.');
-    dateTo.value = dateFrom.value;
-  }
+  const diffDays = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
 
   if (currentFilter === 'weekly' && diffDays < 7) {
     alert('Weekly filter requires at least 7 days. Adjusting "To" date.');
     const newTo = new Date(fromDate);
     newTo.setDate(fromDate.getDate() + 6);
-    dateTo.value = newTo.toISOString().slice(0, 10);
+    toInput.value = newTo.toISOString().slice(0, 10);
   }
 
   if (currentFilter === 'monthly' && diffDays < 28) {
     alert('Monthly filter requires at least 28 days. Adjusting "To" date.');
     const newTo = new Date(fromDate);
     newTo.setDate(fromDate.getDate() + 27);
-    dateTo.value = newTo.toISOString().slice(0, 10);
+    toInput.value = newTo.toISOString().slice(0, 10);
   }
 }
 
 
 function setFilter(type, btn) {
   currentFilter = type;
+
+  // Update button UI
   document.querySelectorAll('.btn-filter').forEach(b => {
     b.classList.remove('active');
     b.classList.add('bg-gray-100');
   });
+
   btn.classList.remove('bg-gray-100');
   btn.classList.add('active');
+
+  const today = new Date();
+  const from = new Date(today);
+
+  if (type === 'weekly') {
+    // Last 4 weeks
+    from.setDate(today.getDate() - 27);
+    dateFrom.value = from.toISOString().slice(0, 10);
+    dateTo.value = today.toISOString().slice(0, 10);
+  }
+
+  if (type === 'monthly') {
+    // Last 6 months
+    from.setMonth(today.getMonth() - 5);
+    dateFrom.value = from.toISOString().slice(0, 10);
+    dateTo.value = today.toISOString().slice(0, 10);
+  }
+
+  // Fetch data
   getTransactions();
 }
+
 
 function getTransactions() {
   // Validate date range before loading
@@ -742,7 +767,6 @@ window.loadRevenueTrends = function() {
   .then(res => res.json())
   .then(res => {
     if (res.success && res.data && res.data.length > 0) {
-      console.log('Revenue trends response:', res);
       renderRevenueChart(res.data, res.group_type);
     } else {
       document.getElementById('revenueChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">No revenue data available</div>';
@@ -754,100 +778,179 @@ window.loadRevenueTrends = function() {
   });
 }
 
-// ============================================================
-// RENDER REVENUE CHART WITH SMART LABELS
-// ============================================================
-window.renderRevenueChart = function(data, groupType) {
-  console.log('Rendering chart - Group type:', groupType, 'Data:', data);
-  
+// =========================================
+// REVENUE TRENDS CHART 
+// =========================================
+window.renderRevenueChart = function (data, groupType) {
+
+  const chartEl = document.getElementById('revenueChart');
+
   if (!data || data.length === 0) {
-    document.getElementById('revenueChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">No data available</div>';
+    chartEl.innerHTML =
+      '<div class="flex items-center justify-center h-full text-gray-400">No data available</div>';
     return;
   }
 
+  chartEl.classList.remove('flex', 'items-center', 'justify-center');
+  chartEl.classList.add('block'); // safe default
+
+  // Dynamic chart title based on group type
+  let chartTitle = 'Revenue Trends';
+  if (groupType === 'daily') chartTitle = 'Daily Revenue Trends';
+  else if (groupType === 'weekly') chartTitle = 'Weekly Revenue Trends';
+  else if (groupType === 'monthly') chartTitle = 'Monthly Revenue Trends';
+  else if (groupType === 'quarterly') chartTitle = 'Quarterly Revenue Trends';
+
   // Limit display based on group type to prevent overcrowding
   let displayData = data;
-  let maxDisplay = 15; // Default max bars
-  
-  if (groupType === 'daily') {
-    maxDisplay = 10;
-  } else if (groupType === 'weekly') {
-    maxDisplay = 12;
-  } else if (groupType === 'monthly') {
-    maxDisplay = 12;
-  } else if (groupType === 'quarterly') {
-    maxDisplay = 8;
-  }
-  
-  // Take last N periods for better visibility
+  let maxDisplay = 15;
+
+  if (groupType === 'daily') maxDisplay = 10;
+  else if (groupType === 'weekly') maxDisplay = 12;
+  else if (groupType === 'monthly') maxDisplay = 12;
+  else if (groupType === 'quarterly') maxDisplay = 8;
+
   if (data.length > maxDisplay) {
     displayData = data.slice(-maxDisplay);
   }
 
-  // Find max and min revenue for better scaling
-  const revenues = displayData.map(d => parseFloat(d.revenue));
+  // Find max revenue
+  const revenues = displayData.map((d) => parseFloat(d.revenue || 0));
   const maxRevenue = Math.max(...revenues);
-  const minRevenue = Math.min(...revenues);
 
-  console.log('Max revenue:', maxRevenue, 'Min revenue:', minRevenue);
-
-  // If all values are 0, show a message
-  if (maxRevenue === 0) {
-    document.getElementById('revenueChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">No revenue in selected period</div>';
+  if (!isFinite(maxRevenue) || maxRevenue <= 0) {
+    chartEl.innerHTML =
+      '<div class="flex items-center justify-center h-full text-gray-400">No revenue in selected period</div>';
     return;
   }
 
-  // Available height in rem (15.625rem = 250px equivalent)
+  // Available height in rem
   const chartHeightRem = 15.625;
-  const minBarHeightRem = 1.25; // Minimum bar height
-  const maxBarHeightRem = chartHeightRem - 2; // Leave some space at top
+
+  // Calculate Y-axis with nice round intervals
+  const calculateNiceInterval = (maxValue) => {
+    const roughInterval = maxValue / 4;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(roughInterval)));
+    const normalized = roughInterval / magnitude;
+
+    let niceInterval;
+    if (normalized <= 1) niceInterval = 1;
+    else if (normalized <= 2) niceInterval = 2;
+    else if (normalized <= 5) niceInterval = 5;
+    else niceInterval = 10;
+
+    return niceInterval * magnitude;
+  };
+
+  const interval = calculateNiceInterval(maxRevenue);
+  const yAxisMax = Math.ceil(maxRevenue / interval) * interval;
+  const numMarkers = Math.floor(yAxisMax / interval) + 1;
+
+  const yAxisMarkers = Array.from({ length: numMarkers }, (_, i) => {
+    return yAxisMax - i * interval;
+  });
+
+  // Format Y-axis values
+  const formatYAxis = (value) => {
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+    return value.toFixed(0);
+  };
+
+  // Label formatter
+  const formatLabel = (item) => {
+    let label = '';
+    if (groupType === 'daily') {
+      const date = new Date(item.date);
+      label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } else if (groupType === 'weekly') {
+      const date = new Date(item.date);
+      const year = date.getFullYear();
+      label = `W${item.week_num || ''} ${year}`;
+    } else if (groupType === 'monthly') {
+      const date = new Date(item.date);
+      label = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    } else if (groupType === 'quarterly') {
+      const date = new Date(item.date);
+      label = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    } else {
+      // fallback
+      label = item.date || '';
+    }
+    return label;
+  };
 
   const chartHTML = `
-    <div class="flex items-end justify-around gap-3" style="height: ${chartHeightRem}rem; padding: 0 0.625rem;">
-      ${displayData.map(item => {
-        const revenue = parseFloat(item.revenue);
-        // Calculate height in rem directly
-        const heightRem = minBarHeightRem + ((revenue - minRevenue) / (maxRevenue - minRevenue || 1)) * (maxBarHeightRem - minBarHeightRem);
+    <div class="w-full h-full overflow-x-auto">
+      <div class="mb-2 text-xs text-gray-600 font-medium">Total Revenue (RM)</div>
+
+      <div class="flex gap-2 min-w-max" style="height:${chartHeightRem}rem;">
         
-        // Format label based on group type
-        let label = '';
-        if (groupType === 'daily') {
-          const date = new Date(item.date);
-          label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        } else if (groupType === 'weekly') {
-          const date = new Date(item.date);
-          const year = date.getFullYear();
-          label = `W${item.week_num || ''} ${year}`;
-        } else if (groupType === 'monthly') {
-          const date = new Date(item.date);
-          label = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-        } else if (groupType === 'quarterly') {
-          const date = new Date(item.date);
-          const month = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-          label = month; // Show as "Jan 2024" instead of "Q1 2024"
-        }
-        
-        console.log(`${label}: RM ${revenue} -> ${heightRem.toFixed(2)}rem`);
-        
-        return `
-          <div class="flex flex-col items-center gap-2 flex-1" style="max-width: 3.75rem;">
-            <div class="relative group w-full" style="height: 100%; display: flex; flex-direction: column; justify-content: flex-end;">
-              <div class="w-full bg-amber-700 rounded-t hover:bg-amber-600 transition-colors cursor-pointer relative" 
-                   style="height: ${heightRem}rem;">
-                <div class="absolute left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg" style="top: -2.25rem;">
-                  RM ${Number(revenue).toLocaleString()}
+        <!-- y-axis -->
+        <div class="flex flex-col justify-between items-end"
+             style="width:4rem; padding-right:0.5rem; flex-shrink:0; height:100%;">
+          ${yAxisMarkers
+            .map(
+              (value) => `
+            <span class="text-xs text-gray-500" style="line-height:1;">${formatYAxis(value)}</span>
+          `
+            )
+            .join('')}
+        </div>
+
+        <!-- Bars area -->
+        <div class="flex-1 flex items-stretch gap-2 sm:gap-3"
+             style="height:100%; padding:0 0.625rem;">
+          ${displayData
+            .map((item, index) => {
+              const revenue = parseFloat(item.revenue || 0);
+              const heightPercent = (revenue / yAxisMax) * 100;
+
+              const label = formatLabel(item);
+
+              return `
+                <div class="flex flex-col items-center flex-1"
+                     style="min-width:2.5rem; max-width:3.75rem; height:100%;">
+
+                  <div class="relative group w-full flex-1 flex items-end" style="min-height:0;">
+                    <div class="w-full bg-amber-700 rounded-t hover:bg-amber-600 transition-colors cursor-pointer relative"
+                         style="height:${heightPercent}%; min-height:${revenue > 0 ? '3px' : '0px'};">
+                      <div class="absolute left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded
+                                  opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg pointer-events-none"
+                           style="bottom: calc(100% + 0.5rem);">
+                        RM ${Number(revenue).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="h-6 flex items-start justify-center">
+                    <span class="text-xs text-gray-600 text-center"
+                          style="line-height:1.2; word-break:break-word;">
+                      ${label}
+                    </span>
+                  </div>
+
                 </div>
-              </div>
-            </div>
-            <span class="text-xs text-gray-600 whitespace-nowrap" style="line-height: 1.2;">${label}</span>
-          </div>
-        `;
-      }).join('')}
+              `;
+            })
+            .join('')}
+        </div>
+      </div>
     </div>
   `;
-  
-  document.getElementById('revenueChart').innerHTML = chartHTML;
-}
+
+  // Update chart content
+  chartEl.innerHTML = chartHTML;
+
+  // Update chart title dynamically
+  const chartContainer = chartEl.closest('.bg-white');
+  if (chartContainer) {
+    const titleElement = chartContainer.querySelector('h3');
+    if (titleElement) {
+      titleElement.textContent = chartTitle;
+    }
+  }
+};
 
 // Load Category Breakdown Chart
 window.loadCategoryBreakdown = function() {
@@ -926,13 +1029,23 @@ window.setFilter = setFilter;
 window.sortTable = sortTable;
 window.downloadTransaction = downloadTransaction;
 window.toggleSelectAll = toggleSelectAll;
-window.exportSelected = exportSelected; // you need to define this
+window.exportSelected = exportSelected; 
 window.validateDateRange = validateDateRange;
 window.toggleRow = toggleRow;
-// Initialize on page load
+
+// ============================
+// INITIAL LOAD 
+// ============================
+setTimeout(() => {
+  currentFilter = 'daily';
+
+  if (!dateFrom.value || !dateTo.value) {
+    const today = new Date().toISOString().slice(0, 10);
+    dateFrom.value = today;
+    dateTo.value = today;
+  }
 
   getTransactions();
-
-
+}, 0);
 
 }

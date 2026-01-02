@@ -1,4 +1,5 @@
 function PurchasePage() {
+    const csrf = localStorage.getItem('csrf_token');
     const [orders, setOrders] = React.useState([]);
     const [errorMsg, setErrorMsg] = React.useState('');
 
@@ -35,7 +36,7 @@ function PurchasePage() {
             const res = await fetch('/earth-hero/src/backend/transaction.php?action=updateOrderStatus', {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json', "X-CSRF-Token": window.csrfToken },
+                headers: { 'Content-Type': 'application/json', "X-CSRF-Token": csrf },
                 body: JSON.stringify({
                     orderID,
                     orderStatus: newOrderStatus,
@@ -60,6 +61,11 @@ function PurchasePage() {
 
 
     return e('div', { className: 'purchase-container' },
+        // Error overlay
+        errorMsg && e(ErrorOverlay, {
+            message: errorMsg,
+            onClose: () => setErrorMsg('')
+        }),
         e('h2', { className: 'title-text' }, "My Purchase History"),
 
         // Status filters

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/earth-hero/assets/earthhero-green.jpg">
+    <title>EarthHero</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <p class="web-disclaimer">By Group CS-4567 | TMS3853 | This application is part of a coursework project and refers to the EarthHero website. It is not a real, live website.</p>
+    <!-- Site header -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="app-container">
+        <!-- Search Bar -->
+        <div id="search-bar"></div>
+
+        <div class="flex-row about-app">
+            <h1 class="app-name">EarthHero</h1>
+            <img class='about-logo', src='../assets/earthhero-green.jpg',alt='logo', title="logo"></img>
+            <h1>Shop Smart, <br />Live <span>Green.</span></h1>
+        </div>
+
+        <!-- Our Story -->
+        <div class="about-col story-container">
+            <h2 class="ab-story" id="ab-story">Our Story</h2>
+            <div class="about-row st-1">
+                <p>
+                    It all started with a simple idea — what if every purchase could leave the planet 
+                    a little better than before?<br /><br />
+                    As students of Computational Science and technology lovers, 
+                    we’ve always been fascinated by how innovation can solve everyday problems. 
+                    But the more we learned, the more we realized that progress means nothing if 
+                    it harms the environment we depend on.
+                </p>
+                <img class='story-img1', 
+                    src='../assets/earhyrecyclebag.webp',
+                    alt='img1', title="img1">
+                </img>
+            </div>
+            <div class="about-row st-2">
+                <img class='story-img2', 
+                    src='../assets/sustainable-shopping-cart.webp',
+                    alt='img', title="img2">
+                </img>
+                <p>
+                    That’s how EarthHero was born — a community-driven brand that blends sustainability, 
+                    comfort, and smart design. We believe small actions create big ripples. 
+                    Every time you buy, earn EcoPoints, or subscribe to a greener habit, 
+                    you’re helping plant trees, reduce waste, and support fair production.<br /><br />
+                    Our goal isn’t just to sell things — it’s to build a lifestyle that 
+                    respects both people and the planet. Together, we’re proving that style 
+                    and sustainability can coexist beautifully.
+                </p>
+            </div>
+        </div>   
+
+        <!-- Impact -->
+        <div class="impact-container">
+            <h2 class="title-text">The Impact We Make</h2>
+            <p class="sub-text">Every EarthHero order creates real-world impact. <br />By shopping here, you're not just buying — you're giving back.</p>
+            <div class="about-col impact-box">
+                <p class="sub-text">Together. we've</p>
+                <h4>Saved <span>123,455kg</span> of plastic</h4>
+                <h4>Plant <span>1,323</span> trees.</h4>
+                <h4>Clean <span>1,239333 kg</span> of waste.</h4>
+                <h4>Delivered <span>101,278</span> eco orders.</h4>
+
+            </div>
+        </div>   
+
+         <!-- Team -->
+        <div class="team-container">
+            <h2 class="title-text">Meet Our Team</h2>
+            <div class="about-row team-list">
+                <div class="team-details">
+                    <img class='team-pic', 
+                        src='../assets/team-profile/team1.png.jpeg',
+                        alt='img', title="img">
+                    </img>
+                    <p>Chin Pei Yi</p>
+                    <p class="sub-text">Member</p>
+                </div>
+
+                <div class="team-details">
+                    <img class='team-pic', 
+                        src='../assets/team-profile/team2.png.jpeg',
+                        alt='img', title="img">
+                    </img>
+                    <p>Tiong Woei Chin</p>
+                    <p class="sub-text">Member</p>
+                </div>
+
+                <div class="team-details">
+                    <img class='team-pic', 
+                        src='../assets/team-profile/team3.png',
+                        alt='img', title="img">
+                    </img>
+                    <p>Hii Siew Chieng</p>
+                    <p class="sub-text">Team Lead of CS-4567</p>
+                </div>
+
+                <div class="team-details">
+                    <img class='team-pic', 
+                        src='../assets/team-profile/team4.png.jpeg',
+                        alt='img', title="img">
+                    </img>
+                    <p>Nurzawanah Uzma</p>
+                    <p class="sub-text">Member</p>
+                </div>
+
+                <div class="team-details">
+                    <img class='team-pic', 
+                        src='../assets/team-profile/team5.png.jpeg',
+                        alt='img', title="img">
+                    </img>
+                    <p>Chan Chin Xuan</p>
+                    <p class="sub-text">Member</p>
+                </div>
+            </div>
+        </div>   
+
+        <!--Pricing-->
+        <div class="pricing-container" id="pricing-container">
+            <div class="pc-title">
+                <h1 class="title-text">Choose Your Plan - Unlock</h1>
+                <h1 class="title-text">Premium Access</h1>
+                <p class="sub-text">Flexible Plans for Every Eco Journey</p>
+            </div>
+
+            <div class="about-row pc-content">
+                <div class="pc-left">
+                    <div>
+                        <p id='pc-t'>Want More <br />Details?</p>
+                        <p>What happens if I cancel my plan?
+                            <br />Can I upgrade later?
+                            <br />Do members get physical benefits?</p>
+                    </div>
+                    <p class="sub-text">*For every first-subscription <br />account, free merchandise will be <br />provided..</p>
+                </div>
+                <div class="pc-right">
+                    <div class="pc-card">
+                        <div class="pc-pricing">
+                            <p class="pc-name">Free</p>
+                            <h1 class="pc-price">RM0</h1>
+                            <p>/month</p>
+                        </div>
+                        <p>For casual visitors</p>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Browse eco products</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">View impact stories</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Purchase and contribute <br />to green community</p>
+                        </div>
+                        <button class="button">Get Started</button>
+                    </div>
+
+                    <div class="pc-card">
+                        <div class="pc-pricing">
+                            <p class="pc-name">Green Member</p>
+                            <h1 class="pc-price">RM29.99</h1>
+                            <p>/month</p>
+                        </div>
+                        <p>For smart buyers</p>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Earn EcoPoints</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Birthday vouchers for any shops</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">5% discount for any orders <br />more than RM30</p>
+                        </div>
+                        <button class="button">Buy Now</button>
+                    </div>
+
+                    <div class="pc-card">
+                        <div class="pc-pricing">
+                            <p class="pc-name">Pro Member</p>
+                            <h1 class="pc-price">RM39.90</h1>
+                            <p>/month</p>
+                        </div>
+                        <p>For true changemakers</p>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Auto-delivery and product<br />subscription features</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">Free monthly eco kits</p>
+                        </div>
+                        <div class="benefits">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p class="sub-text">10% discount for any orders<br />more than RM50</p>
+                        </div>
+                        <button class="button">Get Started</button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="community-container">
+            <div class="ct-title">
+                <h2 class="title-text">Ready to make every purchase count?</h2>
+                <p class="sub-text">Join the EarthHero community and be part of a movement that’s changing 
+                    <br />how we shop — one mindful choice at a time.</p>
+            </div>
+            <button class="button" id="go-shop-btn">Shop Now</button>
+        </div>
+
+    </main>
+
+    <!-- Site footer -->
+    <div id="footer-container"></div>
+
+<script>
+    document.getElementById('go-shop-btn').onclick = function(){
+        location.href = "./shop.html"
+    }
+</script>
+<!-- React CDN -->    
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<!-- Global components -->
+<script src="./components/siteHeader.js?v=1.0"></script>
+<script src="./components/searchBar.js?v=1.0"></script>
+<script src="./components/siteFooter.js?v=1.0"></script>
+<script src="./components/overlay.js"></script>
+<script src="./components/productCard.js"></script>
+<!-- Page JS -->
+<script src="./page/shop.js"></script>   
+</body>
+</html>

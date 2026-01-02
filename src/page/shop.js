@@ -1,5 +1,6 @@
 
 function Shop() {
+    const csrf = localStorage.getItem('csrf_token');
     const [successMsg, setSuccessMsg] = React.useState('');
     const [errorMsg, setErrorMsg] = React.useState('');
     const urlParams = new URLSearchParams(window.location.search);
@@ -221,7 +222,7 @@ function Shop() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': window.csrfToken
+                    'X-CSRF-Token': csrf
                 },
                 credentials: 'include', 
                 body: JSON.stringify(payload)
@@ -510,7 +511,7 @@ function Shop() {
                     e('input', {
                         className:'filter-input', 
                         type: 'text',
-                        placeholder: 'Delivery from...',
+                        placeholder: 'State/ Country',
                         value: filters.location,
                         onChange: (e) => setFilters(prev => ({ ...prev, location: e.target.value }))
                     }),  

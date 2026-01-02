@@ -9,12 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
+    <p class="web-disclaimer">By Group CS-4567 | TMS3853 | This application is part of a coursework project and refers to the EarthHero website. It is not a real, live website.</p>
     <!-- Site header -->
     <div id="header-container"></div>
-    
     
     <!-- Main Content -->
     <main class="app-container">
@@ -107,8 +106,8 @@
             </div>
             <div class="about-row">
                 <h2>"Building a world where every purchase makes a difference."</h2>
-                <iframe class="gif1" title="gif1" src="https://lottie.host/embed/3022c2a4-d435-4529-8646-eea2b59d983a/Y9U1DYe2Jm.lottie"></iframe>
-                <iframe class="gif2" title="gif2" src="https://lottie.host/embed/f2b302a2-abc2-4a15-9ef6-e592d326bda9/3vdpsG1Ly4.lottie"></iframe>
+                <div id="about-lottie-1" class="gif1"></div>
+                <div id="about-lottie-2" class="gif2"></div>
             </div>
             <p>We believe shopping shouldn't harm the planet. 
                     Our marketplace connects conscious buyers with sustainable brands 
@@ -136,7 +135,7 @@
             </div>
         </div>
         <div class="more-about-container">
-            <button class="text-button">> More About Us</button>
+            <button class="text-button" id="more-about-btn" onclick="location.href='./about.html#ab-story'">> More About Us</button>
         </div>
 
         <!-- Collaboration -->
@@ -183,7 +182,7 @@
         </div>
 
         <div class="more-about-container">
-            <button class="text-button">> More pricing plans</button>
+            <button class="text-button" id="more-pc-btn" onclick="location.href='./about.html#pricing-container'">> More pricing plans</button>
         </div>
 
         <!-- Ambassador -->
@@ -268,6 +267,28 @@
 
     <!-- Site footer -->
     <div id="footer-container"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        lottie.loadAnimation({
+            container: document.getElementById("about-lottie-1"),
+            renderer: "svg",
+            loop: true,
+            autoplay: true,
+            path: "/earth-hero/assets/globe.json"
+        });
+
+        lottie.loadAnimation({
+            container: document.getElementById("about-lottie-2"),
+            renderer: "svg",
+            loop: true,
+            autoplay: true,
+            path: "/earth-hero/assets/deliverycar.json"
+        });
+    });
+
+</script>
 
 <!-- React CDN -->    
 <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
